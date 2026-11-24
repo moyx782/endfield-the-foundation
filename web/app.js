@@ -1747,6 +1747,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let shareUrl = window.location.href.split("#")[0];
     if (host.endsWith("workers.dev")) {
       lanBtn.textContent = "CF EDGE // Workers 在线";
+    } else if (host.endsWith("netlify.app")) {
+      lanBtn.textContent = "NETLIFY // CDN 在线";
     } else if (host.endsWith("github.io")) {
       lanBtn.textContent = "GH PAGES // moyx782";
     } else if (host === "localhost" || host === "127.0.0.1") {
