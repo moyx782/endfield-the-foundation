@@ -1179,9 +1179,89 @@ function updateLiveCommentary(t) {
   $("#lc-meta").textContent = active.meta;
 }
 
+const VIDEO_SOURCES = {
+  "4k": "web/media/pv_local_4k.mp4",
+  web: "web/media/pv_web.mp4"
+};
+let activeVideoQuality = "web";
+let local4kAvailable = false;
+
+function isLocalHost() {
+  const h = window.location.hostname;
+  return (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h === "::1" ||
+    h === "[::1]" ||
+    h.endsWith(".local") ||
+    h.startsWith("192.168.") ||
+    h.startsWith("10.") ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(h)
+  );
+}
+
+function updateVideoSourceUI(mode) {
+  const badge = $("#theater-source-badge");
+  const btn4k = $("#btn-src-4k");
+  const btnWeb = $("#btn-src-web");
+  if (badge) {
+    if (mode === "4k") {
+      badge.textContent = "LOCAL 4K · 4096×1716 H.264 (+faststart)";
+      badge.classList.add("is-4k");
+    } else {
+      badge.textContent = "CLOUD STREAM · 1280×536 H.264 (20MB)";
+      badge.classList.remove("is-4k");
+    }
+  }
+  btn4k?.classList.toggle("active", mode === "4k");
+  btnWeb?.classList.toggle("active", mode === "web");
+}
+
+function switchVideoQuality(mode, preserveState = true, notify = false) {
+  const video = $("#pv-video");
+  const srcUrl = VIDEO_SOURCES[mode];
+  if (!video || !srcUrl) return;
+  if (activeVideoQuality === mode && video.currentSrc.includes(srcUrl)) {
+    updateVideoSourceUI(mode);
+    return;
+  }
+
+  const prevTime = preserveState ? video.currentTime || 0 : 0;
+  const wasPlaying = preserveState && !video.paused && !video.ended;
+  activeVideoQuality = mode;
+  updateVideoSourceUI(mode);
+
+  const sourceEl = video.querySelector("source");
+  if (sourceEl) sourceEl.src = srcUrl;
+  video.src = srcUrl;
+
+  const restoreState = () => {
+    if (prevTime > 0) {
+      try {
+        video.currentTime = prevTime;
+      } catch {
+        // Ignore seek errors before ready
+      }
+    }
+    if (wasPlaying) {
+      const p = video.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    }
+  };
+
+  video.addEventListener("loadedmetadata", restoreState, { once: true });
+  video.load();
+
+  if (notify) {
+    showToast(mode === "4k" ? "已切换至本地原生 4K 画质 (4096×1716)" : "已切换至云端流畅流媒体 (1280×536)");
+  }
+}
+
 function initTheater() {
   const video = $("#pv-video");
   const chContainer = $("#theater-chapters");
+  const btn4k = $("#btn-src-4k");
+  const btnWeb = $("#btn-src-web");
 
   chContainer.innerHTML = VIDEO_CHAPTERS.map((ch) => `
     <button type="button" class="chap-pill ${ch.id === 0 ? "active" : ""}" data-cid="${ch.id}" data-seek="${ch.start === 0 ? 2 : ch.start}">
@@ -1196,6 +1276,39 @@ function initTheater() {
   });
 
   $("#hero-play-pv").addEventListener("click", () => jumpToVideoTime(2));
+
+  btn4k?.addEventListener("click", () => {
+    if (!local4kAvailable) return;
+    switchVideoQuality("4k", true, true);
+  });
+
+  btnWeb?.addEventListener("click", () => {
+    switchVideoQuality("web", true, true);
+  });
+
+  updateVideoSourceUI("web");
+  if (isLocalHost()) {
+    fetch(VIDEO_SOURCES["4k"], { method: "HEAD" })
+      .then((res) => {
+        if (res.ok) {
+          local4kAvailable = true;
+          if (btn4k) btn4k.disabled = false;
+          switchVideoQuality("4k", true, false);
+        } else if (btn4k) {
+          btn4k.disabled = true;
+          btn4k.title = "未检测到本地 4K 文件 web/media/pv_local_4k.mp4";
+        }
+      })
+      .catch(() => {
+        if (btn4k) {
+          btn4k.disabled = true;
+          btn4k.title = "未检测到本地 4K 文件 web/media/pv_local_4k.mp4";
+        }
+      });
+  } else if (btn4k) {
+    btn4k.disabled = true;
+    btn4k.title = "仅本地 / 局域网部署环境可用（云端使用 20MB 流媒体）";
+  }
 
   video.addEventListener("seeked", () => {
     pendingSeekTarget = null;
@@ -1255,9 +1368,14 @@ function selectSheet(idx) {
     const catKey = `c${c.id}`;
     const charRefs = ORIGINAL_REFERENCES.filter((r) => r.cat === catKey);
     refsRow.innerHTML = charRefs.map((r) => `
-      <div class="sheet-ref-chip" data-lightbox-src="${r.src}" data-lightbox-title="${r.catLabel} · ${r.title} (${r.note})">
-        <img src="${r.src}" alt="${r.title}" loading="lazy" />
-        <span>${r.title}</span>
+      <div class="sheet-ref-chip">
+        <div class="sheet-ref-preview" data-lightbox-src="${r.src}" data-lightbox-title="${r.catLabel} · ${r.title} (${r.note})">
+          <img src="${r.src}" alt="${r.title}" loading="lazy" />
+        </div>
+        <div class="sheet-ref-foot">
+          <span class="sheet-ref-title" title="${r.title}">${r.title}</span>
+          ${r.rawSrc ? `<button type="button" class="sheet-raw-btn js-open-lb" data-src="${r.rawSrc}" data-title="RAW 4K (4096×1716 PNG) · ${r.catLabel} · ${r.title} [${r.rawTime}]">RAW 4K</button>` : ""}
+        </div>
       </div>
     `).join("");
   }
@@ -1309,94 +1427,104 @@ function initCharacterSheets() {
 }
 
 /* -----------------------------
-   07. COMPLETE ORIGINAL REFERENCE ARCHIVE (58 ASSETS)
+   07. COMPLETE ORIGINAL REFERENCE ARCHIVE (58 REFS + 53 RAW 4K PNGS)
    ----------------------------- */
 const ORIGINAL_REFERENCES = [
   // c01 (4)
-  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "圣女祈祷近景原帧", src: "web/assets/refs/c01/ref_praying.png", note: "黑发尖耳圣女闭目祈祷与蓝袍细节" },
-  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "共生体全身与圣龛结构", src: "web/assets/refs/c01/ref_fullbody.png", note: "铁面巨人怀抱与圣龛站姿 4K 参考" },
-  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "圆形神庙祭坛全景", src: "web/assets/refs/c01/ref_altar.png", note: "反置《圣母怜子》跪祈构图与神庙列柱" },
-  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "三重荆棘圆环个人徽记", src: "web/assets/refs/c01/ref_emblem.png", note: "长枪贯穿七瓣白花与枯骨飞鸽徽记原裁片" },
+  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "圣女祈祷近景原帧", src: "web/assets/refs/c01/ref_praying.png", rawSrc: "web/assets/refs/c01/raw/raw_praying_00202.png", rawTime: "00:20.2", note: "黑发尖耳圣女闭目祈祷与蓝袍细节" },
+  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "共生体全身与圣龛结构", src: "web/assets/refs/c01/ref_fullbody.png", rawSrc: "web/assets/refs/c01/raw/raw_fullbody_02588.png", rawTime: "02:58.8", note: "铁面巨人怀抱与圣龛站姿 4K 参考" },
+  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "圆形神庙祭坛全景", src: "web/assets/refs/c01/ref_altar.png", rawSrc: "web/assets/refs/c01/raw/raw_altar_00252.png", rawTime: "00:25.2", note: "反置《圣母怜子》跪祈构图与神庙列柱" },
+  { cat: "c01", catLabel: "01 芬诺拉 · 本有", title: "三重荆棘圆环个人徽记", src: "web/assets/refs/c01/ref_emblem.png", rawSrc: "web/assets/refs/c01/raw/raw_emblem_00235.png", rawTime: "00:23.5", note: "长枪贯穿七瓣白花与枯骨飞鸽徽记原裁片" },
   // c02 (4)
-  { cat: "c02", catLabel: "02 阿达希尔", title: "阿达希尔高清半身立绘", src: "web/assets/refs/c02/ref_upperbody.png", note: "白发高领蓝黑礼服与星盘圆牌链" },
-  { cat: "c02", catLabel: "02 阿达希尔", title: "侧颜与短双角光影特写", src: "web/assets/refs/c02/ref_profile.png", note: "轮廓双角剪影与冷峻侧脸参考" },
-  { cat: "c02", catLabel: "02 阿达希尔", title: "终局大殿全身站姿参考", src: "web/assets/refs/c02/ref_fullbody.png", note: "垂地深蓝长袍与银白靴履全身剪裁" },
-  { cat: "c02", catLabel: "02 阿达希尔", title: "纵置 8 字日晷徽记切片", src: "web/assets/refs/c02/ref_face_emblem.png", note: "莫比乌斯双环与放射状日晷指针徽记" },
+  { cat: "c02", catLabel: "02 阿达希尔", title: "阿达希尔高清半身立绘", src: "web/assets/refs/c02/ref_upperbody.png", rawSrc: "web/assets/refs/c02/raw/raw_upperbody_02524.png", rawTime: "02:52.4", note: "白发高领蓝黑礼服与星盘圆牌链" },
+  { cat: "c02", catLabel: "02 阿达希尔", title: "侧颜与短双角光影特写", src: "web/assets/refs/c02/ref_profile.png", rawSrc: "web/assets/refs/c02/raw/raw_profile_00475.png", rawTime: "00:47.5", note: "轮廓双角剪影与冷峻侧脸参考" },
+  { cat: "c02", catLabel: "02 阿达希尔", title: "终局大殿全身站姿参考", src: "web/assets/refs/c02/ref_fullbody.png", rawSrc: "web/assets/refs/c02/raw/raw_fullbody_02588.png", rawTime: "02:58.8", note: "垂地深蓝长袍与银白靴履全身剪裁" },
+  { cat: "c02", catLabel: "02 阿达希尔", title: "纵置 8 字日晷徽记切片", src: "web/assets/refs/c02/ref_face_emblem.png", rawSrc: "web/assets/refs/c02/raw/raw_face_emblem_00445.png", rawTime: "00:44.5", note: "莫比乌斯双环与放射状日晷指针徽记" },
   // c03 (4)
-  { cat: "c03", catLabel: "03 面具男", title: "荆棘冠冕面具正面特写", src: "web/assets/refs/c03/ref_upperbody.png", note: "半覆盖银黑金属荆棘面具与蓝领带" },
-  { cat: "c03", catLabel: "03 面具男", title: "数字流无实体电话立姿", src: "web/assets/refs/c03/ref_phone_pose.png", note: "手持青蓝数字代码听筒半身镜头" },
-  { cat: "c03", catLabel: "03 面具男", title: "黑西装长风衣全身站姿", src: "web/assets/refs/c03/ref_fullbody.png", note: "左肩机械银甲与长风衣垂坠比例" },
-  { cat: "c03", catLabel: "03 面具男", title: "全视之眼神经网络徽记", src: "web/assets/refs/c03/ref_emblem.png", note: "鱼鳔形全视之眼与大脑电路树徽记" },
+  { cat: "c03", catLabel: "03 面具男", title: "荆棘冠冕面具正面特写", src: "web/assets/refs/c03/ref_upperbody.png", rawSrc: "web/assets/refs/c03/raw/raw_upperbody_02538.png", rawTime: "02:53.8", note: "半覆盖银黑金属荆棘面具与蓝领带" },
+  { cat: "c03", catLabel: "03 面具男", title: "数字流无实体电话立姿", src: "web/assets/refs/c03/ref_phone_pose.png", rawSrc: "web/assets/refs/c03/raw/raw_phone_pose_00560.png", rawTime: "00:56.0", note: "手持青蓝数字代码听筒半身镜头" },
+  { cat: "c03", catLabel: "03 面具男", title: "黑西装长风衣全身站姿", src: "web/assets/refs/c03/ref_fullbody.png", rawSrc: "web/assets/refs/c03/raw/raw_fullbody_02588.png", rawTime: "02:58.8", note: "左肩机械银甲与长风衣垂坠比例" },
+  { cat: "c03", catLabel: "03 面具男", title: "全视之眼神经网络徽记", src: "web/assets/refs/c03/ref_emblem.png", rawSrc: "web/assets/refs/c03/raw/raw_emblem_01170.png", rawTime: "01:17.0", note: "鱼鳔形全视之眼与大脑电路树徽记" },
   // c04 (5)
-  { cat: "c04", catLabel: "04 测绘建筑师", title: "黄金义手与 811288 肩带", src: "web/assets/refs/c04/ref_goldhand_811288.png", note: "全关节黄金右手与左肩白带 811288 编号" },
-  { cat: "c04", catLabel: "04 测绘建筑师", title: "镂空金属眼罩面部特写", src: "web/assets/refs/c04/ref_eyepatch_face.png", note: "墨绿长发与红眼尖牙冷笑 4K 特写" },
-  { cat: "c04", catLabel: "04 测绘建筑师", title: "高开叉礼服全身站姿", src: "web/assets/refs/c04/ref_fullbody.png", note: "外披蓝里长袍与不对称裙摆比例" },
-  { cat: "c04", catLabel: "04 测绘建筑师", title: "红底高跟鞋与黄金铅垂", src: "web/assets/refs/c04/ref_heels_plumb.png", note: "Louboutin 红底高跟与悬垂测量铅垂" },
-  { cat: "c04", catLabel: "04 测绘建筑师", title: "双蛇螺旋柱准星徽记", src: "web/assets/refs/c04/ref_emblem.png", note: "双蛇杖纹路与铅垂石柱徽记切片" },
+  { cat: "c04", catLabel: "04 测绘建筑师", title: "黄金义手与 811288 肩带", src: "web/assets/refs/c04/ref_goldhand_811288.png", rawSrc: "web/assets/refs/c04/raw/raw_goldhand_811288_01252.png", rawTime: "01:25.2", note: "全关节黄金右手与左肩白带 811288 编号" },
+  { cat: "c04", catLabel: "04 测绘建筑师", title: "镂空金属眼罩面部特写", src: "web/assets/refs/c04/ref_eyepatch_face.png", rawSrc: "web/assets/refs/c04/raw/raw_eyepatch_face_02508.png", rawTime: "02:50.8", note: "墨绿长发与红眼尖牙冷笑 4K 特写" },
+  { cat: "c04", catLabel: "04 测绘建筑师", title: "高开叉礼服全身站姿", src: "web/assets/refs/c04/ref_fullbody.png", rawSrc: "web/assets/refs/c04/raw/raw_fullbody_02588.png", rawTime: "02:58.8", note: "外披蓝里长袍与不对称裙摆比例" },
+  { cat: "c04", catLabel: "04 测绘建筑师", title: "红底高跟鞋与黄金铅垂", src: "web/assets/refs/c04/ref_heels_plumb.png", rawSrc: "web/assets/refs/c04/raw/raw_heels_plumb_01200.png", rawTime: "01:20.0", note: "Louboutin 红底高跟与悬垂测量铅垂" },
+  { cat: "c04", catLabel: "04 测绘建筑师", title: "双蛇螺旋柱准星徽记", src: "web/assets/refs/c04/ref_emblem.png", rawSrc: "web/assets/refs/c04/raw/raw_emblem_01285.png", rawTime: "01:28.5", note: "双蛇杖纹路与铅垂石柱徽记切片" },
   // c05 (4)
-  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "金色四角星芒瞳特写", src: "web/assets/refs/c05/ref_eye_closeup.png", note: "银白短发与右眼金色星芒瞳孔细节" },
-  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "学院短外套与 21 号领带", src: "web/assets/refs/c05/ref_upperbody.png", note: "白色胸带下方深蓝里衣 21 暗纹" },
-  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "把玩液态水银莫比乌斯环", src: "web/assets/refs/c05/ref_mobius_pose.png", note: "荧光绿粉紫镭射丝带与水银 ∞ 环" },
-  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "白过膝袜乐福鞋全身参考", src: "web/assets/refs/c05/ref_fullbody.png", note: "三视图全身着装与双柱 ∞ 盾徽比例" },
+  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "金色四角星芒瞳特写", src: "web/assets/refs/c05/ref_eye_closeup.png", rawSrc: "web/assets/refs/c05/raw/raw_eye_closeup_01560.png", rawTime: "01:56.0", note: "银白短发与右眼金色星芒瞳孔细节" },
+  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "学院短外套与 21 号领带", src: "web/assets/refs/c05/ref_upperbody.png", rawSrc: "web/assets/refs/c05/raw/raw_upperbody_02520.png", rawTime: "02:52.0", note: "白色胸带下方深蓝里衣 21 暗纹" },
+  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "把玩液态水银莫比乌斯环", src: "web/assets/refs/c05/ref_mobius_pose.png", rawSrc: "web/assets/refs/c05/raw/raw_mobius_pose_01530.png", rawTime: "01:53.0", note: "荧光绿粉紫镭射丝带与水银 ∞ 环" },
+  { cat: "c05", catLabel: "05 莫比乌斯少女", title: "白过膝袜乐福鞋全身参考", src: "web/assets/refs/c05/ref_fullbody.png", rawSrc: "web/assets/refs/c05/raw/raw_fullbody_02588.png", rawTime: "02:58.8", note: "三视图全身着装与双柱 ∞ 盾徽比例" },
   // c06 (6)
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "苍蓝日珥光环面部特写", src: "web/assets/refs/c06/ref_closeup.png", note: "金发短辫炽天使与熊熊燃烧蓝珥光环" },
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "银白雕花胸甲正面细节", src: "web/assets/refs/c06/ref_front_armor.png", note: "黑蓝内甲、银白浮雕甲胄与袖口基石文字" },
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "四片石雕机械羽翼站姿", src: "web/assets/refs/c06/ref_stand.png", note: "四翼展开广角构图与披风结构" },
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "圣殿最高台阶全身立绘", src: "web/assets/refs/c06/ref_fullbody.png", note: "终局大殿核心统治站位全身参考" },
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "刻字蓝色晶剑特写", src: "web/assets/refs/c06/ref_sword.png", note: "半透明蓝色晶体长剑剑身蚀刻基石文字" },
-  { cat: "c06", catLabel: "06 四翼审判骑士", title: "哥特巨剑燃烧黑日徽记", src: "web/assets/refs/c06/ref_emblem.png", note: "双柱哥特立面与锯齿黑日蚀图腾" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "苍蓝日珥光环面部特写", src: "web/assets/refs/c06/ref_closeup.png", rawSrc: "web/assets/refs/c06/raw/raw_closeup_02165.png", rawTime: "02:16.5", note: "金发短辫炽天使与熊熊燃烧蓝珥光环" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "银白雕花胸甲正面细节", src: "web/assets/refs/c06/ref_front_armor.png", rawSrc: "web/assets/refs/c06/raw/raw_front_armor_02555.png", rawTime: "02:55.5", note: "黑蓝内甲、银白浮雕甲胄与袖口基石文字" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "四片石雕机械羽翼站姿", src: "web/assets/refs/c06/ref_stand.png", rawSrc: "web/assets/refs/c06/raw/raw_stand_02588.png", rawTime: "02:58.8", note: "四翼展开广角构图与披风结构" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "圣殿最高台阶全身立绘", src: "web/assets/refs/c06/ref_fullbody.png", rawSrc: "web/assets/refs/c06/raw/raw_fullbody_02295.png", rawTime: "02:29.5", note: "终局大殿核心统治站位全身参考" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "刻字蓝色晶剑特写", src: "web/assets/refs/c06/ref_sword.png", rawSrc: "web/assets/refs/c06/raw/raw_sword_02502.png", rawTime: "02:50.2", note: "半透明蓝色晶体长剑剑身蚀刻基石文字" },
+  { cat: "c06", catLabel: "06 四翼审判骑士", title: "哥特巨剑燃烧黑日徽记", src: "web/assets/refs/c06/ref_emblem.png", rawSrc: "web/assets/refs/c06/raw/raw_emblem_02135.png", rawTime: "02:13.5", note: "双柱哥特立面与锯齿黑日蚀图腾" },
   // frames (18)
-  { cat: "frames", catLabel: "4K 分镜帧", title: "01 线框千夫长阿莱克琉斯 (00:08)", src: "web/assets/refs/frames/01_cosmos_wireframe.jpg", note: "跨越黑洞吸积盘的蓝白几何线框战士" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "02 繁花石棺与坍缩恒星 (00:14)", src: "web/assets/refs/frames/02_coffin_skeleton.jpg", note: "机械骷髅巨人怀抱坍缩星核" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "03 黑发祈祷圣女芬诺拉 (00:18)", src: "web/assets/refs/frames/03_char1_praying_girl.jpg", note: "第一章 01 YOUNG DEATH 圣女特写" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "04 反置《圣母怜子》神庙 (00:25)", src: "web/assets/refs/frames/04_char1_statue_altar.jpg", note: "圣女跪于机械巨人膝前祭坛镜头" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "05 阿达希尔苏醒重构 (00:36)", src: "web/assets/refs/frames/05_char2_ardashir.jpg", note: "幽蓝水池与光丝重构“皈依者”" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "06 面具男与数字电话 (00:53)", src: "web/assets/refs/frames/06_char3_masked_close.jpg", note: "红黑故障数字听筒登场镜头" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "07 面具男与全视之眼暗号 (01:02)", src: "web/assets/refs/frames/07_char3_masked_cipher.jpg", note: "LOGICAL ENIGMATA 字幕帧" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "08 建筑师与黄金铅垂雨 (01:25)", src: "web/assets/refs/frames/08_char4_architect_cipher.jpg", note: "苍穹垂落铅垂与斜向加密文字" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "09 黄金星盘圆规工程蓝图 (01:35)", src: "web/assets/refs/frames/09_char4_compass_blueprint.jpg", note: "含 2/ 1234567890 标尺的蓝图帧" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "10 奇点黑洞头颅绅士 (01:45)", src: "web/assets/refs/frames/10_char5_singularity_host.jpg", note: "水银 ∞ 环与燕尾服奇点投影" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "11 莫比乌斯少女星瞳帧 (01:49)", src: "web/assets/refs/frames/11_char5_girl_cipher.jpg", note: "TIMELESS NASCENCE 与星芒瞳" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "12 镜面盐湖白色双椅对坐 (02:01)", src: "web/assets/refs/frames/12_char5_two_chairs.jpg", note: "相对论克尔黑洞下的超现实告别" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "13 四翼审判骑士拔剑帧 (02:12)", src: "web/assets/refs/frames/13_char6_angel_cipher.jpg", note: "RESTORED JUSTICE 黑白半调闪烁" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "14 剑指日蚀 TALOS V 坐标 (02:24)", src: "web/assets/refs/frames/14_talos_v_sword.jpg", note: "浮现 TALOS V 铭文的关键坐标帧" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "15 审判骑士全副武装宣战 (02:28)", src: "web/assets/refs/frames/15_char6_angel_pose.jpg", note: "展开四翼高呼群星熄灭的统帅" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "16 古罗马蒙眼士兵刺矛浮雕 (02:32)", src: "web/assets/refs/frames/16_roman_relief.jpg", note: "直观呼应“造物从不具备造主的视野”" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "17 苍白万手托举圣殿俯瞰 (02:48)", src: "web/assets/refs/frames/17_cathedral_overhead.jpg", note: "罗丹《地狱之门》意象与三柄轨道巨剑" },
-  { cat: "frames", catLabel: "4K 分镜帧", title: "18 六大基石终局大殿同框 (02:59)", src: "web/assets/refs/frames/18_final_group_shot.jpg", note: "全片 6 人完整列阵 4K 无水印帧" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "01 线框千夫长阿莱克琉斯 (00:08)", src: "web/assets/refs/frames/01_cosmos_wireframe.jpg", rawSrc: "web/assets/refs/frames/raw/01_cosmos_wireframe_raw.png", rawTime: "00:08.5", note: "跨越黑洞吸积盘的蓝白几何线框战士" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "02 繁花石棺与坍缩恒星 (00:14)", src: "web/assets/refs/frames/02_coffin_skeleton.jpg", rawSrc: "web/assets/refs/frames/raw/02_coffin_skeleton_raw.png", rawTime: "00:14.0", note: "机械骷髅巨人怀抱坍缩星核" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "03 黑发祈祷圣女芬诺拉 (00:18)", src: "web/assets/refs/frames/03_char1_praying_girl.jpg", rawSrc: "web/assets/refs/frames/raw/03_char1_praying_girl_raw.png", rawTime: "00:23.5", note: "第一章 01 YOUNG DEATH 圣女特写" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "04 反置《圣母怜子》神庙 (00:25)", src: "web/assets/refs/frames/04_char1_statue_altar.jpg", rawSrc: "web/assets/refs/frames/raw/04_char1_statue_altar_raw.png", rawTime: "00:28.0", note: "圣女跪于机械巨人膝前祭坛镜头" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "05 阿达希尔苏醒重构 (00:36)", src: "web/assets/refs/frames/05_char2_ardashir.jpg", rawSrc: "web/assets/refs/frames/raw/05_char2_ardashir_raw.png", rawTime: "00:44.5", note: "幽蓝水池与光丝重构“皈依者”" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "06 面具男与数字电话 (00:53)", src: "web/assets/refs/frames/06_char3_masked_close.jpg", rawSrc: "web/assets/refs/frames/raw/06_char3_masked_close_raw.png", rawTime: "00:56.0", note: "红黑故障数字听筒登场镜头" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "07 面具男与全视之眼暗号 (01:02)", src: "web/assets/refs/frames/07_char3_masked_cipher.jpg", rawSrc: "web/assets/refs/frames/raw/07_char3_masked_cipher_raw.png", rawTime: "01:17.0", note: "LOGICAL ENIGMATA 字幕帧" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "08 建筑师与黄金铅垂雨 (01:25)", src: "web/assets/refs/frames/08_char4_architect_cipher.jpg", rawSrc: "web/assets/refs/frames/raw/08_char4_architect_cipher_raw.png", rawTime: "01:28.5", note: "苍穹垂落铅垂与斜向加密文字" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "09 黄金星盘圆规工程蓝图 (01:35)", src: "web/assets/refs/frames/09_char4_compass_blueprint.jpg", rawSrc: "web/assets/refs/frames/raw/09_char4_compass_blueprint_raw.png", rawTime: "01:35.0", note: "含 2/ 1234567890 标尺的蓝图帧" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "10 奇点黑洞头颅绅士 (01:45)", src: "web/assets/refs/frames/10_char5_singularity_host.jpg", rawSrc: "web/assets/refs/frames/raw/10_char5_singularity_host_raw.png", rawTime: "01:46.5", note: "水银 ∞ 环与燕尾服奇点投影" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "11 莫比乌斯少女星瞳帧 (01:49)", src: "web/assets/refs/frames/11_char5_girl_cipher.jpg", rawSrc: "web/assets/refs/frames/raw/11_char5_girl_cipher_raw.png", rawTime: "01:53.0", note: "TIMELESS NASCENCE 与星芒瞳" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "12 镜面盐湖白色双椅对坐 (02:01)", src: "web/assets/refs/frames/12_char5_two_chairs.jpg", rawSrc: "web/assets/refs/frames/raw/12_char5_two_chairs_raw.png", rawTime: "02:01.0", note: "相对论克尔黑洞下的超现实告别" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "13 四翼审判骑士拔剑帧 (02:12)", src: "web/assets/refs/frames/13_char6_angel_cipher.jpg", rawSrc: "web/assets/refs/frames/raw/13_char6_angel_cipher_raw.png", rawTime: "02:13.5", note: "RESTORED JUSTICE 黑白半调闪烁" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "14 剑指日蚀 TALOS V 坐标 (02:24)", src: "web/assets/refs/frames/14_talos_v_sword.jpg", rawSrc: "web/assets/refs/frames/raw/14_talos_v_sword_raw.png", rawTime: "02:24.0", note: "浮现 TALOS V 铭文的关键坐标帧" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "15 审判骑士全副武装宣战 (02:28)", src: "web/assets/refs/frames/15_char6_angel_pose.jpg", rawSrc: "web/assets/refs/frames/raw/15_char6_angel_pose_raw.png", rawTime: "02:29.5", note: "展开四翼高呼群星熄灭的统帅" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "16 古罗马蒙眼士兵刺矛浮雕 (02:32)", src: "web/assets/refs/frames/16_roman_relief.jpg", rawSrc: "web/assets/refs/frames/raw/16_roman_relief_raw.png", rawTime: "02:33.5", note: "直观呼应“造物从不具备造主的视野”" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "17 苍白万手托举圣殿俯瞰 (02:48)", src: "web/assets/refs/frames/17_cathedral_overhead.jpg", rawSrc: "web/assets/refs/frames/raw/17_cathedral_overhead_raw.png", rawTime: "02:48.0", note: "罗丹《地狱之门》意象与三柄轨道巨剑" },
+  { cat: "frames", catLabel: "4K 分镜帧", title: "18 六大基石终局大殿同框 (02:59)", src: "web/assets/refs/frames/18_final_group_shot.jpg", rawSrc: "web/assets/refs/frames/raw/18_final_group_shot_raw.png", rawTime: "03:00.0", note: "全片 6 人完整列阵 4K 无水印帧" },
   // cipher (13)
-  { cat: "cipher", catLabel: "密码与字体考据", title: "01 YOUNG DEATH 4K 原片切条", src: "web/assets/refs/cipher/cipher1.png", note: "01 号 4K 无损提取与像素描摹基准" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "02 NOSTALGIC FRITH 4K 原片切条", src: "web/assets/refs/cipher/cipher2_ardashir.png", note: "实证第 2 词第 2 位为 R（FRITH）而非 A" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "03 LOGICAL ENIGMATA 4K 原片切条", src: "web/assets/refs/cipher/cipher3_masked.png", note: "L/O/G/I/C/A/E/N/M/T 标准单线基准帧" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "04 CONSTRUCTIC 原片斜向原帧", src: "web/assets/refs/cipher/cipher4_architect.png", note: "片中顺时针旋转 90° 竖排双行原始态" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "04 逆时针 90° 旋正校对图", src: "web/assets/refs/cipher/cipher4_rotated_ccw.png", note: "旋正阅读 CONSTRUCTIC SERVITUDE" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "04 顺时针 90° 对照切片", src: "web/assets/refs/cipher/cipher4_rotated_cw.png", note: "双方向旋转排查对照组" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "05 TIMELESS NASCENCE 原片切条", src: "web/assets/refs/cipher/cipher5_girl.png", note: "呈现 NA/SC/NC 连字压缩规则" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "06 RESTORED JUSTICE 原片切条", src: "web/assets/refs/cipher/cipher6_angel.png", note: "呈现 RE/CE 连字结构与加粗轮廓" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "FOUNDATION 方形负片印章原片", src: "web/assets/refs/cipher/stamp_foundation.png", note: "双列 5 字 F-O-U-N-D / A-T-I-O-N 罗塞塔印章" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "工程蓝图右侧测绘铭文放大", src: "web/assets/refs/cipher/blueprint_right.png", note: "2/ 1234567890 与基石长句原始高清裁剪" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "04 号左肩白带 811288 局部", src: "web/assets/refs/cipher/char4_shoulder.png", note: "确认数字 1/2/8 笔划形态的关键实证图" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "EndfieldByButan 社区字形全览", src: "web/assets/refs/cipher/butan_font_overview.png", note: "lhclbt 开源萨卡兹字表（含 7 个补完字母参照）" },
-  { cat: "cipher", catLabel: "密码与字体考据", title: "本站自编译字体全量 4K 比对图", src: "web/assets/refs/cipher/glyph_verification_sheet.png", note: "FoundationPVStroke.ttf × 原片 × EndfieldByButan" }
+  { cat: "cipher", catLabel: "密码与字体考据", title: "01 YOUNG DEATH 4K 原片切条", src: "web/assets/refs/cipher/cipher1.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher1_00235.png", rawTime: "00:23.5", note: "01 号 4K 无损提取与像素描摹基准" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "02 NOSTALGIC FRITH 4K 原片切条", src: "web/assets/refs/cipher/cipher2_ardashir.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher2_00445.png", rawTime: "00:44.5", note: "实证第 2 词第 2 位为 R（FRITH）而非 A" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "03 LOGICAL ENIGMATA 4K 原片切条", src: "web/assets/refs/cipher/cipher3_masked.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher3_01170.png", rawTime: "01:17.0", note: "L/O/G/I/C/A/E/N/M/T 标准单线基准帧" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "04 CONSTRUCTIC 原片斜向原帧", src: "web/assets/refs/cipher/cipher4_architect.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher4_and_shoulder_01285.png", rawTime: "01:28.5", note: "片中顺时针旋转 90° 竖排双行原始态" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "04 逆时针 90° 旋正校对图", src: "web/assets/refs/cipher/cipher4_rotated_ccw.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher4_and_shoulder_01285.png", rawTime: "01:28.5", note: "旋正阅读 CONSTRUCTIC SERVITUDE" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "04 顺时针 90° 对照切片", src: "web/assets/refs/cipher/cipher4_rotated_cw.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher4_and_shoulder_01285.png", rawTime: "01:28.5", note: "双方向旋转排查对照组" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "05 TIMELESS NASCENCE 原片切条", src: "web/assets/refs/cipher/cipher5_girl.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher5_01530.png", rawTime: "01:53.0", note: "呈现 NA/SC/NC 连字压缩规则" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "06 RESTORED JUSTICE 原片切条", src: "web/assets/refs/cipher/cipher6_angel.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher6_02135.png", rawTime: "02:13.5", note: "呈现 RE/CE 连字结构与加粗轮廓" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "FOUNDATION 方形负片印章原片", src: "web/assets/refs/cipher/stamp_foundation.png", rawSrc: "web/assets/refs/cipher/raw/raw_stamp_foundation_00280.png", rawTime: "00:28.0", note: "双列 5 字 F-O-U-N-D / A-T-I-O-N 罗塞塔印章" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "工程蓝图右侧测绘铭文放大", src: "web/assets/refs/cipher/blueprint_right.png", rawSrc: "web/assets/refs/cipher/raw/raw_blueprint_right_01350.png", rawTime: "01:35.0", note: "2/ 1234567890 与基石长句原始高清裁剪" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "04 号左肩白带 811288 局部", src: "web/assets/refs/cipher/char4_shoulder.png", rawSrc: "web/assets/refs/cipher/raw/raw_cipher4_and_shoulder_01285.png", rawTime: "01:28.5", note: "确认数字 1/2/8 笔划形态的关键实证图" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "EndfieldByButan 社区字形全览", src: "web/assets/refs/cipher/butan_font_overview.png", rawSrc: null, rawTime: null, note: "lhclbt 开源萨卡兹字表（含 7 个补完字母参照）" },
+  { cat: "cipher", catLabel: "密码与字体考据", title: "本站自编译字体全量 4K 比对图", src: "web/assets/refs/cipher/glyph_verification_sheet.png", rawSrc: null, rawTime: null, note: "FoundationPVStroke.ttf × 原片 × EndfieldByButan" }
 ];
 
 let activeRefCat = "all";
+let activeRefRawOnly = false;
+
+function applyReferenceFilters(grid) {
+  grid.querySelectorAll(".ref-card").forEach((card) => {
+    const matchCat = activeRefCat === "all" || card.dataset.cat === activeRefCat;
+    const matchRaw = !activeRefRawOnly || card.dataset.hasRaw === "true";
+    card.classList.toggle("hidden", !(matchCat && matchRaw));
+  });
+}
 
 function initReferenceArchive() {
   const filterBar = $("#ref-filter-bar");
+  const viewToggle = $("#ref-view-toggle");
   const grid = $("#ref-gallery-grid");
   if (!filterBar || !grid) return;
 
   const FILTERS = [
-    { key: "all", label: "全部原始素材 (58)" },
-    { key: "c01", label: "01 芬诺拉·本有 (4)" },
-    { key: "c02", label: "02 阿达希尔 (4)" },
-    { key: "c03", label: "03 面具男 (4)" },
-    { key: "c04", label: "04 测绘建筑师 (5)" },
-    { key: "c05", label: "05 莫比乌斯少女 (4)" },
-    { key: "c06", label: "06 审判骑士 (6)" },
-    { key: "frames", label: "4K 逐帧分镜 (18)" },
-    { key: "cipher", label: "密码与字体考据 (13)" }
+    { key: "all", label: "全部素材 (58+53 RAW)" },
+    { key: "c01", label: "01 芬诺拉 (4+4 RAW)" },
+    { key: "c02", label: "02 阿达希尔 (4+4 RAW)" },
+    { key: "c03", label: "03 面具男 (4+4 RAW)" },
+    { key: "c04", label: "04 建筑师 (5+5 RAW)" },
+    { key: "c05", label: "05 莫比乌斯 (4+4 RAW)" },
+    { key: "c06", label: "06 骑士 (6+6 RAW)" },
+    { key: "frames", label: "4K 分镜 (18+18 RAW)" },
+    { key: "cipher", label: "密码考据 (13+8 RAW)" }
   ];
 
   filterBar.innerHTML = FILTERS.map((f) => `
@@ -1405,20 +1533,31 @@ function initReferenceArchive() {
 
   grid.innerHTML = ORIGINAL_REFERENCES.map((r) => {
     const fn = r.src.split("/").pop();
+    const hasRaw = Boolean(r.rawSrc);
+    const rawFn = hasRaw ? r.rawSrc.split("/").pop() : "";
     return `
-      <article class="ref-card" data-cat="${r.cat}">
+      <article class="ref-card" data-cat="${r.cat}" data-has-raw="${hasRaw}">
         <div class="ref-thumb-box" data-lightbox-src="${r.src}" data-lightbox-title="${r.catLabel} · ${r.title}">
           <img src="${r.src}" alt="${r.title}" loading="lazy" />
           <span class="ref-cat-badge">${r.catLabel}</span>
+          ${hasRaw ? `<span class="ref-raw-badge">RAW 4K · ${r.rawTime}</span>` : ""}
         </div>
         <div class="ref-meta">
           <h4 class="ref-title">${r.title}</h4>
           <p class="ref-note">${r.note}</p>
           <div class="ref-path">${r.src}</div>
+          ${hasRaw ? `<div class="ref-raw-path">RAW: ${r.rawSrc}</div>` : ""}
+          ${hasRaw ? `
+          <div class="ref-actions-grid">
+            <button type="button" class="btn-outline-sm js-open-lb" data-src="${r.src}" data-title="${r.catLabel} · ${r.title}">裁切预览</button>
+            <button type="button" class="btn-outline-sm btn-raw-sm js-open-lb" data-src="${r.rawSrc}" data-title="RAW 4K (4096×1716 PNG) · ${r.catLabel} · ${r.title} [${r.rawTime}]">RAW 4K 预览</button>
+            <a href="${r.src}" download="${fn}" class="btn-outline-sm">↓ 裁切图</a>
+            <a href="${r.rawSrc}" download="${rawFn}" class="btn-blue-sm">↓ RAW 4K</a>
+          </div>` : `
           <div class="ref-actions">
             <button type="button" class="btn-outline-sm js-open-lb" data-src="${r.src}" data-title="${r.catLabel} · ${r.title}">灯箱放大</button>
             <a href="${r.src}" download="${fn}" class="btn-blue-sm">下载原图</a>
-          </div>
+          </div>`}
         </div>
       </article>`;
   }).join("");
@@ -1432,9 +1571,17 @@ function initReferenceArchive() {
       b.classList.toggle("active", isAct);
       b.setAttribute("aria-selected", isAct ? "true" : "false");
     });
-    grid.querySelectorAll(".ref-card").forEach((card) => {
-      card.classList.toggle("hidden", activeRefCat !== "all" && card.dataset.cat !== activeRefCat);
+    applyReferenceFilters(grid);
+  });
+
+  viewToggle?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ref-filter-btn");
+    if (!btn) return;
+    activeRefRawOnly = btn.dataset.mode === "has-raw";
+    viewToggle.querySelectorAll(".ref-filter-btn").forEach((b) => {
+      b.classList.toggle("active", b === btn);
     });
+    applyReferenceFilters(grid);
   });
 }
 
@@ -1533,11 +1680,11 @@ function initSummarySection() {
       { kind: "KEY VISUAL A", title: "AI 概念重构对称史诗主视觉海报", path: "promo_poster_ai_concept.png", spec: "2100×2800 · PNG", action: "lightbox" },
       { kind: "KEY VISUAL C", title: "六大基石档案与密码破译全览图鉴卡", path: "promo_character_dossier_grid.png", spec: "2400×3200 · PNG", action: "lightbox" },
       { kind: "REPORT .MD", title: "《基石》4K 逐帧考据与美学研究报告", path: analysisFile, href: encodeURI(analysisFile), spec: "Markdown · 17KB", action: "link" },
-      { kind: "VIDEO STREAM", title: "2.39:1 H.264 云端优化流媒体原片", path: "web/media/pv_web.mp4", spec: "20MB · HTTP 206 Range", action: "theater" },
+      { kind: "VIDEO STREAM", title: "2.39:1 原片剧场视频（本地 4K / 云端流）", path: "web/media/pv_web.mp4", spec: "本地 4K (4096×1716) / 云端 20MB", action: "theater" },
       { kind: "WEBFONT .WOFF2", title: "基石 PV 细线重构字体（WOFF2 Web 嵌入）", path: "web/fonts/FoundationPVStroke.woff2", spec: "3.4KB · A-Z & 0-9", action: "font" },
       { kind: "FONT .TTF", title: "基石 PV 细线重构字体（TTF 桌面安装）", path: "web/fonts/FoundationPVStroke.ttf", spec: "8.3KB · TrueType", action: "font" },
       { kind: "COMMUNITY .TTF", title: "萨卡兹/终末地实心体（@罗醭坦 CC BY-NC）", path: "web/fonts/EndfieldByButan.ttf", spec: "14KB · + SVG cipher-svg.js", action: "font" },
-      { kind: "4K REF ARCHIVE", title: "全部参考原始图片库（58 张无损原帧与切片）", path: "web/assets/refs/", spec: "27人设图+18分镜+13密码", action: "refs" },
+      { kind: "4K REF ARCHIVE", title: "全部参考图包（58 裁切 + 53 RAW 4K PNG）", path: "web/assets/refs/", spec: "58 张裁切 + 53 份 RAW 4K PNG", action: "refs" },
       { kind: "CLOUDFLARE × GH", title: "Cloudflare Worker 与 GitHub 源码仓库", path: "https://endfield-the-foundation.sfwh0208.workers.dev", href: "https://github.com/moyx782/endfield-the-foundation", spec: "Workers Edge + Pages", action: "cloud" }
     ];
 

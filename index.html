@@ -6,7 +6,7 @@
   <title>「基石」THE FOUNDATION — 《明日方舟：终末地》特别映像档案与美学考究</title>
   <meta name="description" content="《明日方舟：终末地》2.0特别映像「基石」4K逐帧角色分析、基石文字密码破译、艺术史美学考究与交互式原片剧场。" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%2305070d'/%3E%3Cpath d='M4 5L12 12L20 5M12 12V22' stroke='%232667ff' stroke-width='2.4' fill='none'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="web/styles.css" />
+  <link rel="stylesheet" href="web/styles.css?v=4kraw" />
 </head>
 <body>
   <!-- SVG Reusable Symbols -->
@@ -463,12 +463,19 @@
           </div>
           <h2 class="section-title">特别映像「基石」交互原片剧场</h2>
           <p class="section-subtitle">
-            本地已转码为高兼容 H.264 1080p 宽银幕流媒体格式（<code>+faststart</code>），支持任意时刻毫秒级跳转与台词考据实时同步追踪。
+            本地 / 局域网部署环境自动优先加载原生 <strong>4K 4096×1716 H.264</strong>（<code>+faststart</code>）高清原片，云端版本自动切换为 20MB 宽银幕流畅流媒体；支持一键切换画质源与台词考据实时同步追踪。
           </p>
         </div>
 
         <div class="theater-layout">
           <div class="video-column">
+            <div class="theater-source-bar">
+              <span class="ts-badge" id="theater-source-badge">CLOUD STREAM · 1280×536 H.264 (20MB)</span>
+              <div class="ts-controls" role="group" aria-label="画质源切换">
+                <button type="button" class="ts-btn" id="btn-src-4k" data-quality="4k">LOCAL 4K 原画 (4096×1716)</button>
+                <button type="button" class="ts-btn active" id="btn-src-web" data-quality="web">云端流 (1280×536)</button>
+              </div>
+            </div>
             <div class="video-frame">
               <video id="pv-video" controls preload="metadata" poster="web/assets/hero_pantheon.jpg" playsinline>
                 <source src="web/media/pv_web.mp4" type="video/mp4" />
@@ -532,8 +539,8 @@
         </div>
         <div class="sheet-refs-strip">
           <div class="sheet-refs-head">
-            <span>SOURCE 4K REFERENCES // 本角色人设绘制所用的原始 4K 参考帧（点击放大对照）</span>
-            <a href="#references" class="sheet-refs-all-link">查看全部 58 张原始参考图库 →</a>
+            <span>SOURCE 4K REFERENCES // 本角色裁切参考图与 raw/ 原生 4096×1716 无损原帧（点击放大或直阅 RAW 4K）</span>
+            <a href="#references" class="sheet-refs-all-link">查看全部 58 张裁切参考 + 53 份 RAW 4K 原帧 →</a>
           </div>
           <div class="sheet-refs-row" id="sheet-refs-row"></div>
         </div>
@@ -542,21 +549,27 @@
       <div class="sheet-thumb-grid" id="sheet-thumb-grid" role="tablist" aria-label="六大基石人设三视图切换"></div>
     </section>
 
-    <!-- 07. COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 IMAGES) -->
+    <!-- 07. COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 REFS + 53 RAW 4K PNGS) -->
     <section id="references" class="section-block section-alt">
       <div class="container">
         <div class="section-header">
           <div class="section-kicker">
             <svg width="16" height="16"><use href="#y-mark"/></svg>
-            <span>07 // COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 ASSETS)</span>
+            <span>07 // COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 REFS + 53 RAW 4K PNGS)</span>
           </div>
-          <h2 class="section-title">全部参考原始图片归档库（58 张无损素材）</h2>
+          <h2 class="section-title">全部参考原始图片与 RAW 4K 原帧归档库</h2>
           <p class="section-subtitle">
-            完整收录本次角色分析、密码破译、字体描摹及 Codex 人设三视图生成所直接参考的全部 <strong>58 张原始图像素材</strong>——包括 6 位基石角色 4K 参考包（27 张）、全片 4K 分镜关键帧（18 张）与密码字体校对切片（13 张），支持按类别筛选、全屏灯箱鉴赏与无损下载。
+            每个参考图包（<code>c01–c06</code>、<code>frames</code>、<code>cipher</code>）均在对应 <code>raw/</code> 子目录内完整附带原生 <strong>4096×1716 无裁切无损 PNG 原帧（53 份）</strong>，与 <strong>58 张聚焦参考素材</strong> 成对收录，支持分类筛选、一键在灯箱中直阅 RAW 4K 原画及无损下载。
           </p>
         </div>
 
-        <div class="ref-filter-bar" id="ref-filter-bar" role="tablist" aria-label="原始参考图分类筛选"></div>
+        <div class="ref-toolbar">
+          <div class="ref-filter-bar" id="ref-filter-bar" role="tablist" aria-label="原始参考图分类筛选"></div>
+          <div class="ref-view-toggle" id="ref-view-toggle" role="group" aria-label="显示筛选">
+            <button type="button" class="ref-filter-btn active" data-mode="all">显示全部 (58)</button>
+            <button type="button" class="ref-filter-btn" data-mode="has-raw">仅看含 RAW 4K 原帧</button>
+          </div>
+        </div>
         <div class="ref-gallery-grid" id="ref-gallery-grid"></div>
       </div>
     </section>
@@ -784,7 +797,7 @@
   <!-- Toast Notification -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="web/cipher-svg.js"></script>
-  <script src="web/app.js"></script>
+  <script src="web/cipher-svg.js?v=4kraw"></script>
+  <script src="web/app.js?v=4kraw"></script>
 </body>
 </html>

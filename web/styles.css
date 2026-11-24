@@ -2075,6 +2075,67 @@ code {
   align-items: start;
 }
 
+.theater-source-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-grid);
+}
+
+.ts-badge {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: #8eb6ff;
+  padding: 3px 9px;
+  background: rgba(0, 47, 167, 0.22);
+  border: 1px solid var(--border-blue);
+}
+
+.ts-badge.is-4k {
+  color: var(--gold);
+  background: rgba(205, 178, 114, 0.14);
+  border-color: rgba(205, 178, 114, 0.65);
+}
+
+.ts-controls {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ts-btn {
+  padding: 5px 11px;
+  background: #070a12;
+  border: 1px solid var(--border-grid);
+  color: var(--silver);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  transition: all 0.18s ease;
+}
+
+.ts-btn:hover:not(:disabled) {
+  border-color: var(--electric);
+  color: var(--marble);
+}
+
+.ts-btn.active {
+  background: var(--klein);
+  border-color: var(--electric);
+  color: var(--marble);
+  box-shadow: 0 0 12px rgba(38, 103, 255, 0.35);
+}
+
+.ts-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
 .video-frame {
   background: #000;
   border: 1px solid var(--border-blue);
@@ -2889,7 +2950,6 @@ code {
   background: #0b101c;
   border: 1px solid var(--border-grid);
   padding: 6px;
-  cursor: zoom-in;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -2901,30 +2961,74 @@ code {
   transform: translateY(-2px);
 }
 
-.sheet-ref-chip img {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+.sheet-ref-preview {
+  cursor: zoom-in;
+  overflow: hidden;
   background: #04060b;
 }
 
-.sheet-ref-chip span {
+.sheet-ref-preview img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+}
+
+.sheet-ref-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sheet-ref-title {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.69rem;
   color: var(--silver);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.sheet-raw-btn {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  background: rgba(205, 178, 114, 0.14);
+  border: 1px solid rgba(205, 178, 114, 0.6);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  cursor: zoom-in;
+  transition: all 0.16s ease;
+}
+
+.sheet-raw-btn:hover {
+  background: rgba(205, 178, 114, 0.3);
+  color: var(--marble);
+}
+
 /* ===========================
-   07. ORIGINAL REFERENCE ARCHIVE (58 ASSETS)
+   07. ORIGINAL REFERENCE ARCHIVE (58 ASSETS + 53 RAW 4K)
    =========================== */
+.ref-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
 .ref-filter-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 22px;
+}
+
+.ref-view-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .ref-filter-btn {
@@ -3006,6 +3110,18 @@ code {
   color: #9dc0ff;
 }
 
+.ref-raw-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  background: rgba(5, 7, 13, 0.9);
+  border: 1px solid rgba(205, 178, 114, 0.7);
+  color: var(--gold);
+}
+
 .ref-meta {
   padding: 12px 13px;
   display: flex;
@@ -3031,8 +3147,16 @@ code {
 
 .ref-path {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   color: var(--muted);
+  word-break: break-all;
+}
+
+.ref-raw-path {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--gold);
+  opacity: 0.88;
   word-break: break-all;
 }
 
@@ -3042,12 +3166,31 @@ code {
   padding-top: 4px;
 }
 
+.ref-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding-top: 4px;
+}
+
 .ref-actions .btn-outline-sm,
-.ref-actions .btn-blue-sm {
+.ref-actions .btn-blue-sm,
+.ref-actions-grid .btn-outline-sm,
+.ref-actions-grid .btn-blue-sm {
   flex: 1;
   justify-content: center;
   padding: 6px 8px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
+}
+
+.btn-raw-sm {
+  border-color: rgba(205, 178, 114, 0.65) !important;
+  color: var(--gold) !important;
+}
+
+.btn-raw-sm:hover {
+  background: rgba(205, 178, 114, 0.16) !important;
+  color: var(--marble) !important;
 }
 
 /* ===========================
