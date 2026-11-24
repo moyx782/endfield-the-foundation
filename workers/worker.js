@@ -67,7 +67,10 @@ export default {
     }
 
     const encodedPath = relPath.split("/").map((seg) => encodeURIComponent(seg)).join("/");
-    const upstreamUrl = `${RAW_ORIGIN}/${encodedPath}`;
+    const vParam = url.searchParams.get("v");
+    const upstreamUrl = vParam
+      ? `${RAW_ORIGIN}/${encodedPath}?v=${encodeURIComponent(vParam)}`
+      : `${RAW_ORIGIN}/${encodedPath}`;
 
     const rangeHeader = request.headers.get("Range");
     const fetchHeaders = new Headers({
@@ -81,10 +84,11 @@ export default {
       method: request.method,
       headers: fetchHeaders
     };
+    const isCodeAsset = /\.(html|js|css)$/i.test(relPath);
     if (!rangeHeader) {
       fetchOptions.cf = {
         cacheEverything: true,
-        cacheTtl: relPath.endsWith(".html") ? 300 : 86400
+        cacheTtl: isCodeAsset ? 300 : 86400
       };
     }
 
