@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "endfield-the-foundation",
+  "main": "workers/worker.js",
+  "compatibility_date": "2026-11-25",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  }
+}

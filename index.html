@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>「基石」THE FOUNDATION — 《明日方舟：终末地》特别映像档案与美学考究</title>
+  <meta name="description" content="《明日方舟：终末地》2.0特别映像「基石」4K逐帧角色分析、基石文字密码破译、艺术史美学考究与交互式原片剧场。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%2305070d'/%3E%3Cpath d='M4 5L12 12L20 5M12 12V22' stroke='%232667ff' stroke-width='2.4' fill='none'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="web/styles.css" />
+</head>
+<body>
+  <!-- SVG Reusable Symbols -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <symbol id="y-mark" viewBox="0 0 24 24">
+      <path d="M4 5 L12 12 L20 5 M12 12 L12 22 M7 4 L10 7 M17 4 L14 7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="square" />
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24">
+      <polygon points="6,4 20,12 6,20" fill="currentColor" />
+    </symbol>
+    <symbol id="icon-expand" viewBox="0 0 24 24">
+      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.8" fill="none" />
+    </symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24">
+      <path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="square" />
+    </symbol>
+  </svg>
+
+  <!-- Fixed Swiss Telemetry Header -->
+  <header class="telemetry-header" id="top-header">
+    <div class="header-inner">
+      <a href="#hero" class="brand-mark">
+        <span class="brand-spine"></span>
+        <span class="brand-code">THE FOUNDATION</span>
+        <span class="brand-sep">//</span>
+        <span class="brand-cn">基石</span>
+      </a>
+
+      <nav class="main-nav" aria-label="主导航">
+        <a href="#hero" class="nav-link active" data-section="hero"><span>01</span>序言</a>
+        <a href="#characters" class="nav-link" data-section="characters"><span>02</span>基石档案</a>
+        <a href="#cipher" class="nav-link" data-section="cipher"><span>03</span>密码实验室</a>
+        <a href="#aesthetics" class="nav-link" data-section="aesthetics"><span>04</span>美学</a>
+        <a href="#theater" class="nav-link" data-section="theater"><span>05</span>剧场</a>
+        <a href="#sheets" class="nav-link" data-section="sheets"><span>06</span>人设图</a>
+        <a href="#references" class="nav-link" data-section="references"><span>07</span>参考原图</a>
+        <a href="#gallery" class="nav-link" data-section="gallery"><span>08</span>海报</a>
+        <a href="#summary" class="nav-link" data-section="summary"><span>09</span>总结</a>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="btn-lan-pill" id="btn-copy-lan" title="点击复制当前访问链接">SHARE // 复制访问链接</button>
+        <span class="scroll-readout" id="scroll-readout">000%</span>
+        <a href="#theater" class="btn-header-cta" id="btn-jump-theater">定位剧场</a>
+      </div>
+    </div>
+    <div class="scroll-progress-track">
+      <div class="scroll-progress-bar" id="scroll-progress"></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 01. HERO SECTION -->
+    <section id="hero" class="hero-section">
+      <div class="hero-media-layer">
+        <img src="web/assets/hero_pantheon.jpg" alt="《明日方舟：终末地》特别映像「基石」六人终局圣殿同框 4K 原画" class="hero-bg-img" id="hero-bg-img" />
+        <canvas id="cosmos-canvas" class="cosmos-canvas"></canvas>
+        <div class="hero-vignette"></div>
+      </div>
+
+      <!-- Corner Y-marks -->
+      <svg class="fiducial tl" width="22" height="22"><use href="#y-mark"/></svg>
+      <svg class="fiducial tr" width="22" height="22"><use href="#y-mark"/></svg>
+      <svg class="fiducial bl" width="22" height="22"><use href="#y-mark"/></svg>
+      <svg class="fiducial br" width="22" height="22"><use href="#y-mark"/></svg>
+
+      <div class="hero-content container">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>ARKNIGHTS : ENDFIELD // SPECIAL VIDEO ARCHIVE · BV1MMyazPEKy</span>
+        </div>
+
+        <div class="hero-title-wrap">
+          <h1 class="hero-title-cn">基 石</h1>
+          <div class="hero-title-en">THE FOUNDATION</div>
+          <div class="hero-cipher-frieze" id="hero-cipher-frieze" aria-label="THE FOUNDATION 基石矢量铭文"></div>
+        </div>
+
+        <blockquote class="hero-decree">
+          <p class="decree-cn">“新生的文明迟早会认清现实——造物，从不具备造主的视野。”</p>
+          <p class="decree-en">THE NEWBORN CIVILIZATION WILL FACE REALITY — THE CREATED NEVER POSSESS THE VISION OF THE CREATOR.</p>
+        </blockquote>
+
+        <div class="hero-cta-row">
+          <a href="#characters" class="btn-primary">
+            <span>探索六大基石档案</span>
+            <span class="btn-arrow">→</span>
+          </a>
+          <button type="button" class="btn-secondary" id="hero-play-pv">
+            <svg width="14" height="14"><use href="#icon-play"/></svg>
+            <span>进入 4K 映像剧场</span>
+          </button>
+        </div>
+
+        <div class="hero-telemetry-bar">
+          <div class="tele-cell">
+            <span class="tele-label">CONSTRUCTS // 序列人数</span>
+            <span class="tele-val">06 PILLARS + 02 ECHOES</span>
+          </div>
+          <div class="tele-cell">
+            <span class="tele-label">CIPHER // 基石文字</span>
+            <span class="tele-val">SVG VECTOR + WOFF2/TTF FONT</span>
+          </div>
+          <div class="tele-cell">
+            <span class="tele-label">COORDINATE // 核心坐标</span>
+            <span class="tele-val">TALOS V // 塔卫五</span>
+          </div>
+          <div class="tele-cell">
+            <span class="tele-label">SOURCE // 原片规格</span>
+            <span class="tele-val">4096×1716 · 2.39:1 · 03:11</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02. SIX PILLARS INTERACTIVE DOSSIER -->
+    <section id="characters" class="section-block container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <svg width="16" height="16"><use href="#y-mark"/></svg>
+          <span>02 // S.O.W. CLASSIFIED ENTITY REGISTRY</span>
+        </div>
+        <h2 class="section-title">六大「基石」成员交互档案</h2>
+        <p class="section-subtitle">
+          虽然六人在终局圣殿列阵同框，但前五位的哀悼、怀旧与戏谑已被第六位最高裁决者叱为“怀柔的把戏”。点击下方序列或使用键盘 <code>← / →</code> 切换角色解析，并支持一键跳转至 PV 对应时刻。
+        </p>
+      </div>
+
+      <!-- 6-Member Sequence Bar -->
+      <div class="char-selector-bar" id="char-selector-bar" role="tablist" aria-label="六大基石角色选择"></div>
+
+      <!-- Main Asymmetric Character Dossier -->
+      <div class="char-stage" id="char-stage">
+        <!-- Left Column: Visual & Scene Switch -->
+        <div class="char-visual-col">
+          <div class="portrait-frame">
+            <img id="char-main-img" src="web/assets/char_01_portrait.jpg" alt="角色立绘" class="char-main-img" />
+            <div class="portrait-overlay-tl">
+              <span class="p-num" id="char-badge-num">01</span>
+              <span class="p-time" id="char-badge-time">00:02 - 00:29</span>
+            </div>
+            <button type="button" class="portrait-zoom-btn" id="char-zoom-btn" title="放大查看高清画面">
+              <svg width="18" height="18"><use href="#icon-expand"/></svg>
+            </button>
+            <svg class="fiducial tl" width="16" height="16"><use href="#y-mark"/></svg>
+            <svg class="fiducial br" width="16" height="16"><use href="#y-mark"/></svg>
+          </div>
+          <div class="visual-switch-strip" id="char-visual-switches"></div>
+        </div>
+
+        <!-- Right Column: Decoded Metadata -->
+        <div class="char-info-col">
+          <div class="char-title-row">
+            <div>
+              <div class="char-stance-badge" id="char-stance-badge">温和观测派</div>
+              <h3 class="char-code-en" id="char-code-en">YOUNG DEATH</h3>
+              <div class="char-name-cn" id="char-name-cn">年轻的死亡 · 圣龛铁面巨人 &amp; 祈祷圣女</div>
+            </div>
+          </div>
+
+          <!-- Dual-Engine Foundation Script Box (SVG / Font / 4K Raw) -->
+          <div class="cipher-slice-box">
+            <div class="cipher-slice-head">
+              <span>FOUNDATION SCRIPT // 基石密码双引擎呈现</span>
+              <div class="cipher-head-tools">
+                <div class="cipher-mode-tabs" id="char-cipher-mode-tabs" role="tablist" aria-label="密码呈现引擎切换">
+                  <button type="button" class="cm-tab active" data-mode="svg">SVG 矢量</button>
+                  <button type="button" class="cm-tab" data-mode="font-pv">PV 细线字体</button>
+                  <button type="button" class="cm-tab" data-mode="font-solid">萨卡兹实心体</button>
+                  <button type="button" class="cm-tab" data-mode="raw">4K 原片</button>
+                </div>
+                <button type="button" class="btn-mini-toggle" id="btn-toggle-etymology">切换词源与连字注解</button>
+              </div>
+            </div>
+            <div class="cipher-render-stage" id="char-cipher-stage">
+              <div class="cipher-svg-pane active" id="char-cipher-svg"></div>
+              <div class="cipher-font-pane" id="char-cipher-font" data-font="pv"></div>
+              <div class="cipher-raw-pane" id="char-cipher-raw">
+                <img id="char-cipher-img" src="web/assets/cipher_01.png" alt="角色原片基石文字切片" />
+              </div>
+              <div class="cipher-hover-bar" id="char-cipher-hover">悬停任意 SVG 字符可逐位核对拉丁字母映射</div>
+            </div>
+            <div class="cipher-etymology-drawer" id="char-etymology-drawer"></div>
+          </div>
+
+          <!-- Dialogue Box -->
+          <blockquote class="char-quote-box">
+            <span class="quote-tag">DIALOGUE // 原片台词实录</span>
+            <p id="char-quote-text"></p>
+          </blockquote>
+
+          <!-- 2-Col Details: Emblem + Role Analysis -->
+          <div class="char-detail-grid">
+            <div class="detail-card">
+              <div class="detail-label">EMBLEM // 个人几何徽记符号学</div>
+              <div class="detail-title" id="char-emblem-title"></div>
+              <p class="detail-body" id="char-emblem-desc"></p>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">DESIGN &amp; LORE // 视觉细节与定位</div>
+              <div class="detail-title" id="char-role-title"></div>
+              <p class="detail-body" id="char-role-desc"></p>
+            </div>
+          </div>
+
+          <!-- Jump to PV timestamp & View Sheet -->
+          <div class="char-action-footer">
+            <button type="button" class="btn-jump-pv" id="btn-jump-char-pv">
+              <svg width="14" height="14"><use href="#icon-play"/></svg>
+              <span id="btn-jump-char-label">跳转至 PV [00:18] 观看该角色登场片段</span>
+            </button>
+            <button type="button" class="btn-secondary btn-view-sheet" id="btn-view-char-sheet">
+              <svg width="14" height="14"><use href="#icon-expand"/></svg>
+              <span>查看 Codex 设定三视图</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Echoes Subsection -->
+      <div class="echoes-block">
+        <div class="echoes-header">
+          <span class="echoes-kicker">UNLISTED ECHOES // 隐藏第三者意象考据</span>
+          <span class="echoes-sub">除现身的六位基石成员外，PV 中还通过高精度分镜埋藏了两位关键外部关联实体</span>
+        </div>
+        <div class="echoes-grid">
+          <article class="echo-card">
+            <div class="echo-img-wrap" data-lightbox-src="web/assets/scene_cosmos_wireframe.jpg" data-lightbox-title="00:08 线框持枪骷髅战士（千夫长阿莱克琉斯 Allectus 意象）">
+              <img src="web/assets/scene_cosmos_wireframe.jpg" alt="星图线框持枪战士" loading="lazy" />
+              <span class="echo-time">00:08</span>
+            </div>
+            <div class="echo-body">
+              <h4>线框持枪骷髅战士 · 阿莱克琉斯（Allectus）</h4>
+              <p>以蓝白几何点阵线框跨越黑洞吸积盘的兜帽重装千夫长。对应 V1.4《向渊行》武陵北部禁区登场的「造裔」Boss，在与管理员交锋战死归寂之际，以自身坐标将塔卫二位置传回「基石」，与阿达希尔台词“阿莱克琉斯死得其所”直接互文。</p>
+            </div>
+          </article>
+          <article class="echo-card">
+            <div class="echo-img-wrap" data-lightbox-src="web/assets/scene_singularity_host.jpg" data-lightbox-title="01:45 奇点黑洞头颅燕尾服绅士（造主 / 旧宇宙管理员投影）">
+              <img src="web/assets/scene_singularity_host.jpg" alt="奇点黑洞头颅绅士" loading="lazy" />
+              <span class="echo-time">01:45 / 02:00</span>
+            </div>
+            <div class="echo-body">
+              <h4>奇点黑洞头颅绅士 · 造主 / 旧宇宙投影</h4>
+              <p>身着古典黑燕尾服、白马甲与黑领结，头部却是一颗旋转的蓝紫坍缩奇点黑洞（背后带有白色方形背板）。随少女告别“晚安咯，不知名的宇宙……但愿下一次，你能降生在我身边”而化为方格星尘消散。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. ROSETTA CIPHER LAB -->
+    <section id="cipher" class="section-block section-alt">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-kicker">
+            <svg width="16" height="16"><use href="#y-mark"/></svg>
+            <span>03 // CRYPTOGRAPHY &amp; ROSETTA DECODING LAB</span>
+          </div>
+          <h2 class="section-title">「基石文字」罗塞塔密码破译实验室</h2>
+          <p class="section-subtitle">
+            承袭《明日方舟》<strong>萨卡兹古文字（Sarkaz Cipher）</strong> 1:1 英文字母置换语法与几何连字规则。本站通过<strong>高清 SVG 矢量路径引擎</strong>与内嵌 <code>@font-face</code> <strong>Webfont 字体文件（FoundationPVStroke.woff2/.ttf × EndfieldByButan.ttf）</strong>双重驱动，实现全片印章、六大代号及任意文本实时暗号渲染。
+          </p>
+        </div>
+
+        <div class="cipher-lab-grid">
+          <!-- Left: Interactive Rosetta Seal & TALOS V -->
+          <div class="rosetta-panel">
+            <div class="panel-top-tag">ROSETTA STONE #01 // 通用方形负片印章校验器</div>
+            <div class="seal-stage">
+              <div class="seal-viewport" id="seal-viewport">
+                <div id="seal-svg-layer" class="seal-svg-layer active"></div>
+                <img src="web/assets/seal_foundation.png" alt="FOUNDATION 方形基石印章" class="seal-img" id="seal-img" />
+                <div class="seal-grid-overlay" id="seal-grid-overlay" aria-hidden="true">
+                  <div class="sg-cell" data-pos="(1,1)">F</div>
+                  <div class="sg-cell match-o" data-pos="(1,2)">O</div>
+                  <div class="sg-cell" data-pos="(1,3)">U</div>
+                  <div class="sg-cell match-n" data-pos="(1,4)">N</div>
+                  <div class="sg-cell" data-pos="(1,5)">D</div>
+                  <div class="sg-cell" data-pos="(2,1)">A</div>
+                  <div class="sg-cell" data-pos="(2,2)">T</div>
+                  <div class="sg-cell" data-pos="(2,3)">I</div>
+                  <div class="sg-cell match-o" data-pos="(2,4)">O</div>
+                  <div class="sg-cell match-n" data-pos="(2,5)">N</div>
+                </div>
+              </div>
+              <div class="seal-controls">
+                <button type="button" class="btn-lab active-off" id="btn-rotate-seal">↺ 逆时针旋正 90°</button>
+                <button type="button" class="btn-lab active-off" id="btn-toggle-grid">⊞ 叠加 F-O-U-N-D / A-T-I-O-N 校对网格</button>
+                <button type="button" class="btn-lab active" id="btn-seal-mode">✦ 切换：SVG 矢量印章 / 4K 原片</button>
+              </div>
+              <div class="seal-notes">
+                <p><strong>校验原理：</strong>印章原始状态为两列各 5 字母顺时针旋转 90° 竖排。旋正后呈现 <code>F-O-U-N-D</code>（上行）与 <code>A-T-I-O-N</code>（下行），其中 <span class="hl-gold">(1,2) 与 (2,4) 符号同为 O</span>、<span class="hl-blue">(1,4) 与 (2,5) 符号同为 N</span>，SVG 矢量重绘与原片切片无缝对齐。</p>
+              </div>
+            </div>
+
+            <div class="talos-card">
+              <div class="talos-img-wrap" data-lightbox-src="web/assets/scene_talos_v.jpg" data-lightbox-title="02:24 剑指日蚀：TALOS V（塔卫五）坐标铭文">
+                <img src="web/assets/scene_talos_v.jpg" alt="TALOS V 剑指日蚀" loading="lazy" />
+              </div>
+              <div class="talos-info">
+                <span class="talos-tag">ROSETTA STONE #02 // 02:24</span>
+                <div class="talos-cipher-svg" id="talos-cipher-svg" title="TALOS V SVG 矢量铭文"></div>
+                <h4>TALOS V · 塔卫五坐标铭文</h4>
+                <p>四翼骑士举剑直指星蚀时浮现 5 字母词汇接空格与倒 V 罗马数字。结合游戏档案中管理员曾将「基石」放逐至超域的历史，强烈指向塔卫二之外的<strong>塔卫五（Talos-V）</strong>大本营坐标。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: 6 Ciphers + Oxymoron Matrix -->
+          <div class="matrix-panel">
+            <div class="matrix-panel-head">
+              <div class="panel-top-tag">LATIN-SCHOLASTIC OXYMORON // 经院哲学矛盾修辞矩阵</div>
+              <div class="cipher-mode-tabs" id="matrix-mode-tabs" role="tablist" aria-label="矩阵呈现模式切换">
+                <button type="button" class="cm-tab active" data-mode="svg">SVG 矢量</button>
+                <button type="button" class="cm-tab" data-mode="font-pv">PV 细线字体</button>
+                <button type="button" class="cm-tab" data-mode="font-solid">萨卡兹实心体</button>
+                <button type="button" class="cm-tab" data-mode="raw">4K 原片</button>
+              </div>
+            </div>
+            <div class="cipher-list" id="cipher-matrix-list"></div>
+            <div class="cipher-extra-card">
+              <h4>补充密码细节、萨卡兹文字排布律与连字规则</h4>
+              <ul>
+                <li><strong>NOSTALGIC FRITH 勘误实证：</strong>经 4K 原片切片 <code>cipher_02.png</code> 与 PRTS 社区萨卡兹文字表交叉比对，02 号第二词第 2 位实为锐角三角形 <code>R</code>（<code>FRITH</code>，古英语“安宁/庇护”，与 <i>Enigmata / Nascence</i> 同属古典古词），并非 <code>FA</code>（Faith）。</li>
+                <li><strong>数字与四大排布方向：</strong>04 号建筑师肩带编号 <code>811288</code>、蓝图刻度 <code>2/ 1234567890</code> 均严丝合缝匹配 0-9 字符集；游戏中萨卡兹/基石文字常采用<strong>常规横排</strong>、<strong>顺时针 90° 竖排</strong>（如 FOUND/ATION 印章与 04 号片头）、<strong>倒置 180°</strong> 与<strong>左右镜像</strong>四种加密变换。</li>
+                <li><strong>典型视觉连字与构词逻辑：</strong>PV 标题排印中常见 <code>RE / CE</code>（06 <i>Restored Justice</i> 将左脚 <code>R/C</code> 嵌于 <code>E</code> 下方）与 <code>NA / SC</code> 连字；全员代号均采取“形容词 ↔ 抽象名词”矛盾修辞，隐喻超越线性时间的高维本质。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-width Interactive SVG & Embedded Font Workbench -->
+        <div class="cipher-workbench" id="cipher-workbench">
+          <div class="wb-top">
+            <div>
+              <span class="wb-kicker">LIVE CRYPTOGRAPHIC TYPOGRAPHY ENGINE // SVG + WOFF2 / TTF</span>
+              <h3>交互式「萨卡兹 · 基石文字」实时加密工作台与 26 字母图谱</h3>
+            </div>
+            <div class="wb-font-downloads">
+              <a href="web/fonts/FoundationPVStroke.woff2" download="FoundationPVStroke.woff2" class="wb-dl-pill">↓ PV 细线体 .WOFF2 (3.4KB)</a>
+              <a href="web/fonts/FoundationPVStroke.ttf" download="FoundationPVStroke.ttf" class="wb-dl-pill">↓ PV 细线体 .TTF (8.3KB)</a>
+              <a href="web/fonts/EndfieldByButan.ttf" download="EndfieldByButan.ttf" class="wb-dl-pill" title="社区二创开源萨卡兹/终末地体 (CC BY-NC 4.0, @罗醭坦)">↓ 萨卡兹实心体 EndfieldByButan.ttf</a>
+            </div>
+          </div>
+
+          <div class="wb-controls-row">
+            <div class="wb-input-group">
+              <label for="cipher-live-input">INPUT TEXT // 键入英文或数字即时加密转写（A–Z / 0–9）</label>
+              <input id="cipher-live-input" class="wb-input" type="text" value="THE FOUNDATION" maxlength="48" autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="wb-toolbar-group">
+              <div class="cipher-mode-tabs" id="wb-engine-tabs" role="tablist" aria-label="工作台渲染引擎">
+                <button type="button" class="cm-tab active" data-engine="svg">SVG 矢量线稿</button>
+                <button type="button" class="cm-tab" data-engine="font-pv">嵌入字体 · PV 细线体</button>
+                <button type="button" class="cm-tab" data-engine="font-solid">嵌入字体 · 萨卡兹实心体</button>
+              </div>
+              <div class="cipher-mode-tabs" id="wb-transform-tabs" role="tablist" aria-label="官方式加密排布方向">
+                <button type="button" class="cm-tab active" data-tf="normal">常规</button>
+                <button type="button" class="cm-tab" data-tf="rot90">顺时针 90°</button>
+                <button type="button" class="cm-tab" data-tf="rot180">倒置 180°</button>
+                <button type="button" class="cm-tab" data-tf="mirror">左右镜像</button>
+              </div>
+              <label class="wb-slider-label" id="wb-stroke-wrap">
+                <span>SVG 线宽 <strong id="wb-stroke-val">8.4</strong></span>
+                <input id="wb-stroke-slider" type="range" min="6" max="13" step="0.4" value="8.4" />
+              </label>
+              <button type="button" class="btn-outline-sm" id="btn-wb-export-svg">导出当前 SVG</button>
+            </div>
+          </div>
+
+          <div class="wb-presets" id="wb-presets"></div>
+
+          <div class="wb-output-stage" id="wb-output-stage">
+            <div class="wb-render-target" id="wb-render-target"></div>
+          </div>
+          <div class="wb-decode-bar">
+            <span id="wb-decode-status">HOVER TELEMETRY // 鼠标悬停上方任意 SVG 符文即可逐字高亮并反查拉丁字母；点击下方字母卡片可直接追加输入</span>
+            <span class="wb-credit">萨卡兹实心体致谢开源二创字体 <code>lhclbt/Endfield_Font (EndfieldByButan.ttf · CC BY-NC 4.0)</code>；PV 细线矢量引擎与 WOFF2/TTF 由本站逐帧重绘编译</span>
+          </div>
+
+          <div class="wb-alphabet-head">
+            <span>COMPLETE 26-LETTER + DIGIT SPECIMEN // 19 个 PV 4K 实证字母 + 7 个萨卡兹文体系补完字母 + 0-9 数字</span>
+            <div class="wb-legend">
+              <span class="lg-dot attested"><i></i>PV 2.0 原片 4K 实证（19 字母 + 0–9）</span>
+              <span class="lg-dot sarkaz"><i></i>萨卡兹古文字通用表补完（B, K, P, Q, W, X, Z）</span>
+            </div>
+          </div>
+          <div class="wb-alphabet-grid" id="wb-alphabet-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04. AESTHETICS & ART HISTORY CURATION -->
+    <section id="aesthetics" class="section-block container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <svg width="16" height="16"><use href="#y-mark"/></svg>
+          <span>04 // COLOR PHILOSOPHY, ART HISTORY &amp; AUDIOVISUAL MONTAGE</span>
+        </div>
+        <h2 class="section-title">多维美学考究策展画廊</h2>
+        <p class="section-subtitle">
+          从剥除所有“工业安全黄”的克莱因蓝色谱，到跨越两千年的古典宗教雕塑、福柯敞视规训、粗野主义建筑与古罗马浮雕互文——解构鹰角如何用三分钟建构出一座高冷神殿。
+        </p>
+      </div>
+
+      <!-- A. Color Philosophy Comparator -->
+      <div class="color-philosophy-box">
+        <div class="cp-head">
+          <div>
+            <h3>A. 阵营色彩哲学：以「克莱因蓝」对抗「工业安全黄」</h3>
+            <p>点击任意色块可一键复制 HEX 色值；右侧切换开关对比两大阵营的意识形态视觉鸿沟。</p>
+          </div>
+          <div class="faction-switch" role="group" aria-label="阵营色彩对照切换">
+            <button type="button" class="fswitch-btn active" data-palette="foundation">「基石」绝对零度蓝白谱</button>
+            <button type="button" class="fswitch-btn" data-palette="endfield">「终末地工业」安全黄工业谱</button>
+          </div>
+        </div>
+
+        <div class="swatch-row" id="swatch-row"></div>
+        <div class="palette-manifesto" id="palette-manifesto"></div>
+      </div>
+
+      <!-- B. Art History & Spatial Intertextuality -->
+      <div class="art-history-box">
+        <div class="ah-head">
+          <h3>B. 空间、建筑与雕塑艺术史六幕互文</h3>
+          <div class="ah-filters" id="ah-filters">
+            <button type="button" class="filter-pill active" data-cat="all">全部 (06)</button>
+            <button type="button" class="filter-pill" data-cat="sculpture">雕塑与宗教</button>
+            <button type="button" class="filter-pill" data-cat="architecture">建筑与规训</button>
+            <button type="button" class="filter-pill" data-cat="cosmos">天体与超现实</button>
+          </div>
+        </div>
+        <div class="art-grid" id="art-history-grid"></div>
+      </div>
+
+      <!-- C. 6-Act Audiovisual Montage Timeline -->
+      <div class="montage-box">
+        <div class="ah-head">
+          <h3>C. 六章体视听情绪演进时间轴（00:00 → 03:11）</h3>
+          <span class="montage-hint">点击任意乐章节点可直接跳转至原片剧场对应片段</span>
+        </div>
+        <div class="montage-track" id="montage-track"></div>
+      </div>
+    </section>
+
+    <!-- 05. INTERACTIVE 2.39:1 CINEMA THEATER -->
+    <section id="theater" class="section-block section-alt">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-kicker">
+            <svg width="16" height="16"><use href="#y-mark"/></svg>
+            <span>05 // 2.39:1 ANAMORPHIC VIDEO &amp; LIVE COMMENTARY</span>
+          </div>
+          <h2 class="section-title">特别映像「基石」交互原片剧场</h2>
+          <p class="section-subtitle">
+            本地已转码为高兼容 H.264 1080p 宽银幕流媒体格式（<code>+faststart</code>），支持任意时刻毫秒级跳转与台词考据实时同步追踪。
+          </p>
+        </div>
+
+        <div class="theater-layout">
+          <div class="video-column">
+            <div class="video-frame">
+              <video id="pv-video" controls preload="metadata" poster="web/assets/hero_pantheon.jpg" playsinline>
+                <source src="web/media/pv_web.mp4" type="video/mp4" />
+                您的浏览器暂不支持 HTML5 视频播放。
+              </video>
+            </div>
+            <div class="chapter-pills" id="theater-chapters"></div>
+          </div>
+
+          <aside class="live-commentary-panel" id="live-commentary">
+            <div class="lc-head">
+              <span class="lc-dot"></span>
+              <span>LIVE SYNC // 实时分镜与台词同步</span>
+              <span class="lc-clock" id="lc-clock">00:00 / 03:11</span>
+            </div>
+            <div class="lc-chapter-tag" id="lc-chapter-tag">CHAPTER 01 // 00:02 - 00:29</div>
+            <h3 class="lc-title" id="lc-title">YOUNG DEATH · 恒星挽歌与共生圣龛</h3>
+            <blockquote class="lc-quote" id="lc-quote">
+              “我们曾循光而来，又弃之而去……惹人怜爱的恒星啊，愿你安息，愿你再无枯竭……一如祂的愿。”
+            </blockquote>
+            <p class="lc-analysis" id="lc-analysis"></p>
+            <div class="lc-meta" id="lc-meta"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06. ALL-MEMBER CHARACTER REFERENCE SHEETS (CODEX) -->
+    <section id="sheets" class="section-block container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <svg width="16" height="16"><use href="#y-mark"/></svg>
+          <span>06 // CODEX BUILT-IN IMAGE_GEN · CHARACTER DESIGN SHEETS</span>
+        </div>
+        <h2 class="section-title">全员官方设定集风格人设三视图集</h2>
+        <p class="section-subtitle">
+          由本机 <strong>Codex CLI（gpt-6.2-astra × image_gen）</strong> 严格对照 4K 原片无水印参考帧绘制并逐张经视觉校验，全套 6 位「基石」成员统一采用浅雪花石膏瑞士工程网格、正面/背面/3/4 侧身三视图与配件徽记拆解排版。
+        </p>
+      </div>
+
+      <div class="sheet-inspector">
+        <div class="sheet-stage-frame" id="sheet-stage-frame">
+          <img id="sheet-stage-img" src="web/assets/sheets/sheet_01_young_death.png" alt="角色设定三视图" />
+          <div class="sheet-stage-hover"><span>点击全屏灯箱无损鉴赏 1672×941 细节</span></div>
+        </div>
+        <div class="sheet-stage-bar">
+          <div class="sheet-stage-info">
+            <span class="sheet-code-tag" id="sheet-code-tag">01 // YOUNG DEATH</span>
+            <div class="sheet-cipher-badge" id="sheet-cipher-badge"></div>
+            <h3 id="sheet-title-cn">年轻的死亡 · 圣龛铁面巨人 &amp; 祈祷黑发圣女</h3>
+            <p id="sheet-notes">包含共生正面、蓝袍背部剪裁与圣女独照、跪祈侧面、铁面与圣女特写、骨骼胸腔坍缩星核、双银匕首、白花十字胸针与三重荆棘贯穿徽记。</p>
+            <div class="sheet-spec-tags" id="sheet-spec-tags"></div>
+          </div>
+          <div class="sheet-stage-actions">
+            <button type="button" class="btn-outline-sm" id="btn-sheet-lightbox">全屏灯箱放大</button>
+            <button type="button" class="btn-outline-sm" id="btn-sheet-goto-dossier">跳转人物档案</button>
+            <a id="btn-sheet-download" href="web/assets/sheets/sheet_01_young_death.png" download="sheet_01_young_death.png" class="btn-blue-sm">
+              <svg width="14" height="14"><use href="#icon-download"/></svg>下载 PNG 原图
+            </a>
+          </div>
+        </div>
+        <div class="sheet-refs-strip">
+          <div class="sheet-refs-head">
+            <span>SOURCE 4K REFERENCES // 本角色人设绘制所用的原始 4K 参考帧（点击放大对照）</span>
+            <a href="#references" class="sheet-refs-all-link">查看全部 58 张原始参考图库 →</a>
+          </div>
+          <div class="sheet-refs-row" id="sheet-refs-row"></div>
+        </div>
+      </div>
+
+      <div class="sheet-thumb-grid" id="sheet-thumb-grid" role="tablist" aria-label="六大基石人设三视图切换"></div>
+    </section>
+
+    <!-- 07. COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 IMAGES) -->
+    <section id="references" class="section-block section-alt">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-kicker">
+            <svg width="16" height="16"><use href="#y-mark"/></svg>
+            <span>07 // COMPLETE ORIGINAL 4K REFERENCE ARCHIVE (58 ASSETS)</span>
+          </div>
+          <h2 class="section-title">全部参考原始图片归档库（58 张无损素材）</h2>
+          <p class="section-subtitle">
+            完整收录本次角色分析、密码破译、字体描摹及 Codex 人设三视图生成所直接参考的全部 <strong>58 张原始图像素材</strong>——包括 6 位基石角色 4K 参考包（27 张）、全片 4K 分镜关键帧（18 张）与密码字体校对切片（13 张），支持按类别筛选、全屏灯箱鉴赏与无损下载。
+          </p>
+        </div>
+
+        <div class="ref-filter-bar" id="ref-filter-bar" role="tablist" aria-label="原始参考图分类筛选"></div>
+        <div class="ref-gallery-grid" id="ref-gallery-grid"></div>
+      </div>
+    </section>
+
+    <!-- 08. PROMOTIONAL KEY VISUAL GALLERY -->
+    <section id="gallery" class="section-block container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <svg width="16" height="16"><use href="#y-mark"/></svg>
+          <span>08 // CURATED PROMOTIONAL KEY VISUALS</span>
+        </div>
+        <h2 class="section-title">主题宣传主视觉画廊</h2>
+        <p class="section-subtitle">
+          结合原片美学考据与 4K 无水印素材制作的三款主题宣传海报，点击即可进入全屏灯箱鉴赏细节或下载无损原图。
+        </p>
+      </div>
+
+      <div class="poster-gallery">
+        <!-- Poster B Wide Hero Featured -->
+        <article class="poster-card poster-wide">
+          <div class="poster-img-box" data-lightbox-src="promo_poster_pantheon_4k.png" data-lightbox-title="宣传图 B：4K 原画级「六大基石」群像主视觉横幅 (3840×2160)">
+            <img src="promo_poster_pantheon_4k.png" alt="4K 原画级六大基石群像主视觉横幅" loading="lazy" />
+            <div class="poster-hover-mask"><span>点击全屏鉴赏 4K 细节</span></div>
+          </div>
+          <div class="poster-meta">
+            <div>
+              <span class="poster-tag">KEY VISUAL B · 3840×2160 (16:9 4K)</span>
+              <h3>4K 原画级「六大基石」群像主视觉横幅</h3>
+              <p>基于 02:59 无字幕原生 4K 终局大殿原画（无缝去除平台水印）与六位成员零遮挡 4K 特写肖像重构，底栏采用宋体混排与双语判词。</p>
+            </div>
+            <div class="poster-btns">
+              <button type="button" class="btn-outline-sm js-open-lb" data-src="promo_poster_pantheon_4k.png" data-title="宣传图 B：4K 原画级「六大基石」群像主视觉横幅 (3840×2160)">全屏预览</button>
+              <a href="promo_poster_pantheon_4k.png" download="promo_poster_pantheon_4k.png" class="btn-blue-sm">
+                <svg width="14" height="14"><use href="#icon-download"/></svg>下载原图
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Poster A Vertical -->
+        <article class="poster-card">
+          <div class="poster-img-box" data-lightbox-src="promo_poster_ai_concept.png" data-lightbox-title="宣传图 A：AI 概念重构主视觉海报 (2100×2800)">
+            <img src="promo_poster_ai_concept.png" alt="AI 概念重构主视觉海报" loading="lazy" />
+            <div class="poster-hover-mask"><span>点击全屏鉴赏细节</span></div>
+          </div>
+          <div class="poster-meta">
+            <div>
+              <span class="poster-tag">KEY VISUAL A · 2100×2800 (3:4)</span>
+              <h3>AI 概念重构主视觉海报</h3>
+              <p>克莱因蓝克尔黑洞、瑞士星盘线框、四翼炽天使女武神、悬垂十字巨剑、黄金铅垂与万手大理石圣坛的对称史诗构图。</p>
+            </div>
+            <div class="poster-btns">
+              <button type="button" class="btn-outline-sm js-open-lb" data-src="promo_poster_ai_concept.png" data-title="宣传图 A：AI 概念重构主视觉海报 (2100×2800)">全屏预览</button>
+              <a href="promo_poster_ai_concept.png" download="promo_poster_ai_concept.png" class="btn-blue-sm">
+                <svg width="14" height="14"><use href="#icon-download"/></svg>下载原图
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Poster C Dossier Sheet -->
+        <article class="poster-card">
+          <div class="poster-img-box" data-lightbox-src="promo_character_dossier_grid.png" data-lightbox-title="宣传图 C：六大「基石」角色档案与密码破译全览图鉴卡 (2400×3200)">
+            <img src="promo_character_dossier_grid.png" alt="六大基石角色档案与密码破译图鉴卡" loading="lazy" />
+            <div class="poster-hover-mask"><span>点击全屏鉴赏细节</span></div>
+          </div>
+          <div class="poster-meta">
+            <div>
+              <span class="poster-tag">KEY VISUAL C · 2400×3200 (3:4)</span>
+              <h3>角色设定与密码破译全览图鉴卡</h3>
+              <p>实拍嵌入 FOUNDATION 罗塞塔印章、六位成员 4K 立绘、原片密码切片、徽记拆解、代表台词及基石美学色卡。</p>
+            </div>
+            <div class="poster-btns">
+              <button type="button" class="btn-outline-sm js-open-lb" data-src="promo_character_dossier_grid.png" data-title="宣传图 C：六大「基石」角色档案与密码破译全览图鉴卡 (2400×3200)">全屏预览</button>
+              <a href="promo_character_dossier_grid.png" download="promo_character_dossier_grid.png" class="btn-blue-sm">
+                <svg width="14" height="14"><use href="#icon-download"/></svg>下载原图
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 09. FINAL SYNTHESIS & ARCHIVE SUMMARY -->
+    <section id="summary" class="section-block section-alt">
+      <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <svg width="16" height="16"><use href="#y-mark"/></svg>
+          <span>09 // FINAL SYNTHESIS · EPILOGUE ARCHIVE</span>
+        </div>
+        <h2 class="section-title">终章总结：「基石」启示录与全案成果总览</h2>
+        <p class="section-subtitle">
+          从 4K 原片逐帧考据、基石文字密码学破译、艺术史美学互文，到全套 6 位角色 Codex 设定集人设图绘制与交互式专题交付——全景归档「基石」特别映像的完整核心结论。
+        </p>
+      </div>
+
+      <!-- A. Master Roster & Lore Synthesis Table -->
+      <div class="summary-block">
+        <div class="summary-subhead">
+          <h3>A. 「基石」六大实体与隐藏意象全景总表</h3>
+          <span>点击操作按钮可直达对应设定三视图或 PV 原片时刻</span>
+        </div>
+        <div class="summary-table-wrap">
+          <table class="summary-table" id="summary-roster-table">
+            <thead>
+              <tr>
+                <th>序列</th>
+                <th>破译代号 / 中文</th>
+                <th>出场时刻</th>
+                <th>视觉核心锚点</th>
+                <th>阵营立场与定位</th>
+                <th>核心判词 / 台词摘要</th>
+                <th>快捷交互</th>
+              </tr>
+            </thead>
+            <tbody id="summary-roster-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- B. Three Worldview & Narrative Conclusions -->
+      <div class="summary-block">
+        <div class="summary-subhead">
+          <h3>B. 世界观与叙事三大终极结论</h3>
+          <span>从地方开拓跃迁至宇宙热寂与造主法则博弈</span>
+        </div>
+        <div class="summary-pillars-grid">
+          <article class="sum-card">
+            <span class="sum-num">CONCLUSION 01 // 位格铁律</span>
+            <h4>“管理员与源石，唯此二者，与祂平齐”</h4>
+            <p>
+              在「基石」建筑师的宏观结构论里，塔卫二与泰拉行星只是宏大建筑下的微尘；而面具男的<strong>“镶嵌了中子星的玩具车”</strong>则点破真相——人类脆弱的“文明环带（玩具车）”之所以能产生超常反应，全赖“管理员与源石（中子星）”这一被强行嵌入凡俗系统的最高位格奇点。
+            </p>
+          </article>
+          <article class="sum-card">
+            <span class="sum-num">CONCLUSION 02 // 密码闭环</span>
+            <h4>FOUNDATION × TALOS V × 萨卡兹字体双引擎</h4>
+            <p>
+              方形印章校验确认为 <code>FOUNDATION</code>；剑指日蚀铭文破译为 <code>TALOS V</code>；02 号经 4K 与萨卡兹文字核对勘误为 <code>NOSTALGIC FRITH</code>（古英语“怀旧的安宁”），04 号携编号 <code>811288</code> 与标尺 <code>2/ 1234567890</code>。全站同步嵌入 <code>SVG</code> 矢量与 <code>WOFF2/TTF</code> 双重字体文件，实现 26 字母与数字实时渲染。
+            </p>
+          </article>
+          <article class="sum-card">
+            <span class="sum-num">CONCLUSION 03 // 内部决裂</span>
+            <h4>“怀柔把戏”终结与全面圣战宣言</h4>
+            <p>
+              PV 通过群像对话暴露了「基石」阵营内部的态度温差：01 芬诺拉（Fionnuala）与「本有」咏唱恒星安息挽歌，02 阿达希尔（Ardashir）借千夫长阿莱克琉斯（Allectus）之死寄望虚空共鸣，03 戏谑“篡逆者”，04 冷漠丈量结构，05 轻快告别；最终由 06 号四翼统帅一剑斩断温情，宣言以战争重启铸就“万灵存在之基石”。
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <!-- C. Aesthetics & Art Direction Methodology -->
+      <div class="summary-block">
+        <div class="summary-subhead">
+          <h3>C. 冷峻科幻歌剧美学方法论</h3>
+          <span>色彩对位 × 艺术史雕塑互文 × 瑞士网格排版</span>
+        </div>
+        <div class="summary-methodology-grid">
+          <div class="meth-card">
+            <div class="meth-badge" style="border-color: var(--electric); color: #8cb8ff;">COLOR DIALECTICS</div>
+            <h4>以克莱因蓝对抗工业安全黄</h4>
+            <p>彻底剥离终末地工业代表凡人开拓热忱的暖安全黄，全面改用<strong>克莱因蓝（#002FA7）+ 雪花石膏白 + 极夜黑</strong>建构绝对理智的神殿，仅保留红底高跟鞋与黄铜星盘作危险/神性点睛。</p>
+          </div>
+          <div class="meth-card">
+            <div class="meth-badge" style="border-color: var(--gold); color: var(--gold);">ART HISTORY</div>
+            <h4>两千年艺术史与空间拼贴</h4>
+            <p>连续化用<strong>反置《圣母怜子》活体圣物匣</strong>、<strong>圆形神庙网格解构</strong>、<strong>福柯敞视办公厅</strong>、<strong>粗野主义十字巨构</strong>、<strong>镜面盐湖克尔黑洞</strong>及<strong>古罗马蒙眼士兵浮雕 × 罗丹万手圣坛</strong>。</p>
+          </div>
+          <div class="meth-card">
+            <div class="meth-badge" style="border-color: var(--silver); color: var(--marble);">SWISS GRID &amp; SCORE</div>
+            <h4>出版级瑞士网格与六章交响</h4>
+            <p>每位成员均匹配高反差垂直几何徽记、Y 字形工程对位准星（Fiducial Marks）、ASCII 故障噪点与黑白半调闪烁；配乐自钢琴圣咏层层推至管弦电子摇滚高潮。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- D. Complete Deliverables Archive Index -->
+      <div class="summary-block">
+        <div class="summary-subhead">
+          <h3>D. 全案数字化产出物清单一键归档（共 16 项核心资产与云端入口）</h3>
+          <span>所有文件均已托管于 GitHub 仓库与 Cloudflare Workers，支持直接检视与下载</span>
+        </div>
+        <div class="deliverables-grid" id="deliverables-grid"></div>
+      </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <div class="brand-mark">
+          <span class="brand-spine"></span>
+          <span class="brand-code">THE FOUNDATION</span>
+          <span class="brand-sep">//</span>
+          <span class="brand-cn">基石档案库</span>
+        </div>
+        <p>《明日方舟：终末地》特别映像「基石」深度角色分析、密码破译与美学考究交互专题站。</p>
+      </div>
+      <div class="footer-right">
+        <span>CLOUDFLARE WORKER: https://endfield-the-foundation.sfwh0208.workers.dev</span>
+        <span>GITHUB REPO: https://github.com/moyx782/endfield-the-foundation · HTTP 206 RANGE</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Fullscreen Lightbox Modal -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog">
+    <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+    <div class="lightbox-dialog">
+      <div class="lightbox-bar">
+        <span id="lightbox-caption">图像预览</span>
+        <div class="lightbox-controls">
+          <a id="lightbox-download" href="#" download class="lb-btn">下载原图</a>
+          <button type="button" id="lightbox-close" class="lb-btn lb-close" aria-label="关闭灯箱">✕ ESC</button>
+        </div>
+      </div>
+      <div class="lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="web/cipher-svg.js"></script>
+  <script src="web/app.js"></script>
+</body>
+</html>

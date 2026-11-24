@@ -1,0 +1,11 @@
+# Raw 4K & local high-bitrate video archives (exceed GitHub 100 MiB / CF 25 MiB static limits)
+正片 *.mp4
+web/media/pv_local_1080p_backup.mp4
+
+# Local runtime logs & OS metadata
+web/server.log
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+.wrangler/
