@@ -9,7 +9,6 @@ fs.mkdirSync(DIST, { recursive: true });
 
 const rootFiles = [
   "index.html",
-  "promo_poster_ai_concept.png",
   "promo_poster_pantheon_4k.png",
   "promo_character_dossier_grid.png",
   "《明日方舟：终末地》特别映像「基石」深度角色分析与美学考究.md"

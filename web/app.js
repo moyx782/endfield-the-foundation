@@ -1677,7 +1677,6 @@ function initSummarySection() {
       { kind: "CODEX SHEET 05", title: "05 TIMELESS NASCENCE (莫比乌斯少女) 三视图", path: "web/assets/sheets/sheet_05_timeless_nascence.png", spec: "1672×941 · 2.3MB", action: "lightbox" },
       { kind: "CODEX SHEET 06", title: "06 RESTORED JUSTICE (审判骑士) 三视图", path: "web/assets/sheets/sheet_06_restored_justice.png", spec: "1672×941 · 2.5MB", action: "lightbox" },
       { kind: "KEY VISUAL B", title: "4K 原画级「六大基石」群像宣传横幅", path: "promo_poster_pantheon_4k.png", spec: "3840×2160 · PNG", action: "lightbox" },
-      { kind: "KEY VISUAL A", title: "AI 概念重构对称史诗主视觉海报", path: "promo_poster_ai_concept.png", spec: "2100×2800 · PNG", action: "lightbox" },
       { kind: "KEY VISUAL C", title: "六大基石档案与密码破译全览图鉴卡", path: "promo_character_dossier_grid.png", spec: "2400×3200 · PNG", action: "lightbox" },
       { kind: "REPORT .MD", title: "《基石》4K 逐帧考据与美学研究报告", path: analysisFile, href: encodeURI(analysisFile), spec: "Markdown · 17KB", action: "link" },
       { kind: "VIDEO STREAM", title: "2.39:1 原片剧场视频（本地 4K / 云端流）", path: "web/media/pv_web.mp4", spec: "本地 4K (4096×1716) / 云端 20MB", action: "theater" },

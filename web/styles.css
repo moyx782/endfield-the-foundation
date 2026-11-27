@@ -2265,6 +2265,24 @@ code {
   grid-column: 1 / -1;
 }
 
+.poster-dossier-card {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) 1fr;
+  align-items: stretch;
+}
+
+.poster-dossier-card .poster-img-box {
+  aspect-ratio: 3 / 4;
+  max-height: 580px;
+}
+
+.poster-dossier-card .poster-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px;
+}
+
 .poster-img-box {
   position: relative;
   background: #04060c;
@@ -3232,6 +3250,7 @@ code {
   .art-grid { grid-template-columns: 1fr; }
   .montage-track { grid-template-columns: repeat(2, 1fr); }
   .poster-gallery { grid-template-columns: 1fr; }
+  .poster-dossier-card { grid-template-columns: 1fr; }
   .sheet-thumb-grid { grid-template-columns: repeat(2, 1fr); }
   .ref-gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .deliverables-grid { grid-template-columns: 1fr; }
