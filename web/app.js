@@ -497,11 +497,13 @@ function initCosmosCanvas() {
 }
 
 function initScrollTelemetry() {
+  const nav = $(".main-nav");
   const navLinks = $$(".nav-link");
   const sections = navLinks.map((a) => document.getElementById(a.dataset.section)).filter(Boolean);
   const progressBar = $("#scroll-progress");
   const readout = $("#scroll-readout");
   const heroBg = $("#hero-bg-img");
+  let lastCurId = "";
 
   function onScroll() {
     const sy = window.scrollY;
@@ -510,9 +512,13 @@ function initScrollTelemetry() {
     progressBar.style.width = `${pct}%`;
     readout.textContent = `${String(pct).padStart(3, "0")}%`;
 
-    // Subtle parallax on hero background
-    if (heroBg && sy < window.innerHeight * 1.2) {
-      heroBg.style.transform = `scale(${1.03 + sy * 0.00008}) translateY(${sy * 0.14}px)`;
+    // Subtle parallax on hero background (disabled on narrow screens to prevent horizontal bleed)
+    if (heroBg) {
+      if (window.innerWidth <= 640) {
+        heroBg.style.transform = "";
+      } else if (sy < window.innerHeight * 1.2) {
+        heroBg.style.transform = `scale(${1.03 + sy * 0.00008}) translateY(${sy * 0.14}px)`;
+      }
     }
 
     // Active nav tracking
@@ -522,7 +528,17 @@ function initScrollTelemetry() {
         curId = sec.id;
       }
     }
-    navLinks.forEach((l) => l.classList.toggle("active", l.dataset.section === curId));
+    if (curId !== lastCurId) {
+      lastCurId = curId;
+      navLinks.forEach((l) => l.classList.toggle("active", l.dataset.section === curId));
+      if (nav && window.innerWidth <= 860) {
+        const activeLink = nav.querySelector(`.nav-link[data-section="${curId}"]`);
+        if (activeLink) {
+          const left = Math.max(0, activeLink.offsetLeft - (nav.clientWidth - activeLink.offsetWidth) / 2);
+          nav.scrollTo({ left, behavior: "smooth" });
+        }
+      }
+    }
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -688,6 +704,7 @@ function initCharacters() {
     };
     charSvgPane.addEventListener("mouseover", reportGlyph);
     charSvgPane.addEventListener("focusin", reportGlyph);
+    charSvgPane.addEventListener("click", reportGlyph);
     charSvgPane.addEventListener("mouseleave", () => {
       if (charCipherMode === "svg") syncCharCipherMode();
     });
@@ -982,6 +999,7 @@ function initCipherWorkbench() {
   };
   target.addEventListener("mouseover", updateHover);
   target.addEventListener("focusin", updateHover);
+  target.addEventListener("click", updateHover);
   target.addEventListener("mouseleave", () => {
     if (wbEngine === "svg") {
       statusBar.textContent = `SVG RENDER // 原文："${(input.value || "").toUpperCase().trim()}"（悬停字符高亮反查拉丁映射）`;
@@ -1745,16 +1763,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const host = window.location.hostname;
     let shareUrl = window.location.href.split("#")[0];
     if (host.endsWith("workers.dev")) {
-      lanBtn.textContent = "CF EDGE // Workers 在线";
+      lanBtn.innerHTML = '<span class="lan-prefix">CF EDGE // </span>分享';
     } else if (host.endsWith("netlify.app")) {
-      lanBtn.textContent = "NETLIFY // CDN 在线";
+      lanBtn.innerHTML = '<span class="lan-prefix">NETLIFY // </span>分享';
     } else if (host.endsWith("github.io")) {
-      lanBtn.textContent = "GH PAGES // moyx782";
+      lanBtn.innerHTML = '<span class="lan-prefix">GH PAGES // </span>分享';
     } else if (host === "localhost" || host === "127.0.0.1") {
       shareUrl = "http://192.168.1.9:8765";
-      lanBtn.textContent = "LAN // 192.168.1.9:8765";
+      lanBtn.innerHTML = '<span class="lan-prefix">LAN 192.168.1.9 // </span>分享';
     } else {
-      lanBtn.textContent = `LIVE // ${host}`;
+      lanBtn.innerHTML = `<span class="lan-prefix">LIVE ${host} // </span>分享`;
     }
     lanBtn.addEventListener("click", () => {
       copyText(shareUrl, "已复制访问链接");
